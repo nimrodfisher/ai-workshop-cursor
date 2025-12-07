@@ -1,0 +1,18 @@
+﻿psycopg[binary]>=3.2.0,<4.0.0
+python-dotenv>=1.0.0,<2.0.0
+
+# Data Analysis
+pandas>=2.1.0
+
+# Analysis Framework
+pyyaml>=6.0.0
+requests>=2.31.0
+
+# Optional: For advanced dashboards
+# dash>=2.14.0
+# dash-bootstrap-components>=1.5.0
+
+# Optional: For Jupyter notebooks
+# jupyter>=1.0.0
+# ipywidgets>=8.1.0
+
