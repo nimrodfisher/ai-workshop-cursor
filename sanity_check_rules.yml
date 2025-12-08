@@ -1,5 +1,10 @@
 # Sanity Check Rules
 # Defines rules for data quality checks on tables
+# 
+# USAGE: This file is used in Phase 1 of the analysis workflow
+# REFERENCE: See ANALYSIS_FLOW.md for execution order
+# 
+# This file is automatically loaded by SanityChecker when framework.connect() is called
 
 version: 1
 

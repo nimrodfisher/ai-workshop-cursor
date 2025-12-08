@@ -1,49 +1,82 @@
-﻿## AI Workshop (Cursor)  Supabase Postgres + GitHub MCP
+﻿# AI Workshop - Analysis Framework
 
-This project is a minimal scaffold for running AI-powered analysis for data teams:
+A comprehensive analysis framework for data teams with performance-aware querying, validation, and HTML dashboard generation.
 
-- **Supabase Postgres**: connect directly to your Supabase-hosted Postgres database.
-- **GitHub MCP (external)**: intended to be used from an MCP-capable client (e.g. Cursor / Claude Desktop) to provide repository context for query building and documentation lookup.
+## Quick Start
 
-This repo does **not** expose a UI  it is meant to be used from scripts, notebooks, or an AI coding environment (like Cursor).
+```python
+from analysis_framework import AnalysisFramework
+from context_manager import ContextManager
 
-### 1. Setup
+# Initialize
+context = ContextManager("nimrodfisher", "workshop-queries-repo")
+context.load_schema_from_github("schema.yml")
+framework = AnalysisFramework(schema_context=context.schema_context)
+framework.connect()
 
-1. Create and activate a virtual environment (optional but recommended):
+# Run analysis
+framework.run_sanity_checks("users")
+framework.run_eda("users")
+# ... continue with analysis
 
-`ash
-python -m venv .venv
-source .venv/bin/activate  # On Windows: .venv\Scripts\activate
-`
+framework.close()
+```
 
-2. Install dependencies:
+## Analysis Flow
 
-`ash
+**Follow the execution order defined in `ANALYSIS_FLOW.md`:**
+
+1. **Phase 1: Sanity Checks** → Uses `sanity_check_rules.yml`
+2. **Phase 2: EDA** → Uses `eda_rules.yml`
+3. **Phase 3: Main Analysis** → Uses `schema.yml` (GitHub)
+4. **Phase 4: Text Classification** → Uses user context (if needed)
+5. **Phase 5: Diagnostic Analysis** → Uses analysis results (if relevant)
+
+📖 **See `ANALYSIS_FLOW.md` for complete execution guide**  
+🤖 **See `AGENT_INSTRUCTIONS.md` for agent-specific instructions**
+
+## Key Features
+
+- ✅ **Performance-Aware**: Optimizes queries based on table metadata
+- ✅ **Validation**: Validates aggregations against raw data
+- ✅ **Transparent**: Step-by-step explanations
+- ✅ **Context-Aware**: Combines schema + user input + real-time data
+- ✅ **Sanity Checks**: Data quality validation
+- ✅ **EDA**: Exploratory data analysis
+- ✅ **Text Classification**: LLM-based categorization
+- ✅ **Diagnostic Analysis**: Segment comparison and insights
+
+## Rule Files
+
+| File | Phase | Purpose |
+|------|-------|---------|
+| `sanity_check_rules.yml` | 1 | Data quality checks |
+| `eda_rules.yml` | 2 | Exploratory analysis |
+| `schema.yml` (GitHub) | 3 | Schema context |
+| User context | 4 | Text classification |
+| Analysis results | 5 | Segment comparison |
+
+## Documentation
+
+- **`ANALYSIS_FLOW.md`** - Complete analysis workflow and execution order
+- **`AGENT_INSTRUCTIONS.md`** - Quick reference for agents
+- **`CODE_GENERATION_STANDARDS.md`** - **SQL and Python code documentation standards**
+- **`README_ANALYSIS_FRAMEWORK.md`** - Detailed framework documentation
+- **`NEW_FEATURES.md`** - Guide to new features
+- **`USAGE_GUIDE.md`** - Usage examples
+
+## Installation
+
+```bash
 pip install -r requirements.txt
-`
+```
 
-3. Create your .env file from the template:
+## Requirements
 
-`ash
-cp .env.example .env
-`
+- Python 3.8+
+- PostgreSQL/Supabase connection
+- Access to GitHub repo with schema.yml
 
-4. Edit .env and fill in your real Supabase Postgres credentials.
+## License
 
-### 2. Testing the database connection
-
-After configuring .env, run:
-
-`ash
-python db.py
-`
-
-You should see a message indicating the current database time if the connection is successful.
-
-### 3. Next steps
-
-- Add analysis scripts (for example, nalysis/ with question-driven SQL queries).
-- Wire this project into your MCP-capable editor (Cursor / Claude) so the AI can:
-  - Read this repository for context.
-  - Use a GitHub MCP server (configured in your editor) to pull repo context from GitHub.
-- Extend db.py with helper functions for frequently used queries.
+MIT
