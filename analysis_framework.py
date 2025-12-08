@@ -11,6 +11,10 @@ from datetime import datetime
 import json
 import os
 from dotenv import load_dotenv
+from sanity_checker import SanityChecker
+from eda_analyzer import EDAAnalyzer
+from text_classifier import TextClassifier
+from diagnostic_analyzer import DiagnosticAnalyzer
 
 load_dotenv()
 
@@ -55,6 +59,10 @@ class AnalysisFramework:
         self.steps: List[AnalysisStep] = []
         self.connection = None
         self.table_metadata: Dict[str, Dict] = {}
+        self.sanity_checker: Optional[SanityChecker] = None
+        self.eda_analyzer: Optional[EDAAnalyzer] = None
+        self.text_classifier: Optional[TextClassifier] = None
+        self.diagnostic_analyzer: Optional[DiagnosticAnalyzer] = None
         
     def connect(self):
         """Establish database connection"""
@@ -65,6 +73,12 @@ class AnalysisFramework:
             user=os.getenv("SUPABASE_USER"),
             password=os.getenv("SUPABASE_PASSWORD")
         )
+        # Initialize analyzers
+        if self.connection:
+            self.sanity_checker = SanityChecker(self.connection)
+            self.eda_analyzer = EDAAnalyzer(self.connection)
+            self.text_classifier = TextClassifier()
+            self.diagnostic_analyzer = DiagnosticAnalyzer()
         
     def close(self):
         """Close database connection"""
@@ -422,6 +436,179 @@ class AnalysisFramework:
         
         print(f"\n{'='*80}\n")
     
+    def run_sanity_checks(self, table_name: str) -> Dict[str, Any]:
+        """
+        Run sanity checks on a table
+        
+        Args:
+            table_name: Name of table to check
+        
+        Returns:
+            Sanity check results
+        """
+        if not self.sanity_checker:
+            raise ValueError("Sanity checker not initialized. Call connect() first.")
+        
+        step = AnalysisStep(
+            step_number=len(self.steps) + 1,
+            description=f"Running sanity checks on table '{table_name}'",
+            query=f"Sanity checks for {table_name}",
+            assumptions=["Using rules from sanity_check_rules.yml"]
+        )
+        
+        # Run sanity checks
+        results = self.sanity_checker.run_sanity_checks(table_name)
+        step.metadata = {'sanity_check_results': results}
+        
+        # Print results
+        self.sanity_checker.print_sanity_check_results(results)
+        
+        self.steps.append(step)
+        return results
+    
+    def run_eda(self, table_name: str, sample_size: Optional[int] = None) -> Dict[str, Any]:
+        """
+        Run Exploratory Data Analysis on a table
+        
+        Args:
+            table_name: Name of table to analyze
+            sample_size: Optional sample size for large tables
+        
+        Returns:
+            EDA results
+        """
+        if not self.eda_analyzer:
+            raise ValueError("EDA analyzer not initialized. Call connect() first.")
+        
+        step = AnalysisStep(
+            step_number=len(self.steps) + 1,
+            description=f"Running Exploratory Data Analysis on table '{table_name}'",
+            query=f"EDA for {table_name}",
+            assumptions=[
+                f"Analyzing {'sample of' if sample_size else 'all'} data",
+                "Using rules from eda_rules.yml"
+            ]
+        )
+        
+        # Run EDA
+        results = self.eda_analyzer.run_eda(table_name, sample_size)
+        step.metadata = {'eda_results': results}
+        
+        # Print results
+        self.eda_analyzer.print_eda_results(results)
+        
+        self.steps.append(step)
+        return results
+    
+    def classify_text_column(
+        self,
+        table_name: str,
+        column_name: str,
+        user_context: str,
+        num_categories: int = 5
+    ) -> Dict[str, Any]:
+        """
+        Classify text column using LLM based on user context
+        
+        Args:
+            table_name: Table containing the column
+            column_name: Column to classify
+            user_context: User's context for classification
+            num_categories: Number of categories to create
+        
+        Returns:
+            Classification results
+        """
+        if not self.text_classifier:
+            raise ValueError("Text classifier not initialized. Call connect() first.")
+        
+        # Get data
+        query = f"SELECT {column_name} FROM {table_name} WHERE {column_name} IS NOT NULL LIMIT 1000;"
+        df = pd.read_sql_query(query, self.connection)
+        
+        step = AnalysisStep(
+            step_number=len(self.steps) + 1,
+            description=f"Classifying text column '{column_name}' using LLM based on user context",
+            query=query,
+            assumptions=[
+                f"Using user context: {user_context}",
+                f"Creating {num_categories} categories",
+                "LLM classification will be performed"
+            ],
+            clarifications=[
+                "Are these categories appropriate for your analysis?",
+                "Should we adjust the number of categories?"
+            ]
+        )
+        
+        # Classify
+        results = self.text_classifier.classify_text_column(
+            df, column_name, user_context, num_categories=num_categories
+        )
+        step.metadata = {'classification_results': results}
+        
+        print(f"\n{'='*80}")
+        print(f"TEXT CLASSIFICATION: {column_name}")
+        print(f"{'='*80}")
+        print(f"\n📝 User Context: {user_context}")
+        print(f"📊 Unique Values: {results.get('unique_values_count', 'N/A')}")
+        print(f"📋 Suggested Categories: {len(results.get('categories', []))}")
+        for cat in results.get('categories', []):
+            print(f"   • {cat.get('name', 'N/A')}: {cat.get('description', '')}")
+        print(f"\n{'='*80}\n")
+        
+        self.steps.append(step)
+        return results
+    
+    def run_diagnostic_analysis(
+        self,
+        query: str,
+        target_column: str,
+        segment_columns: List[str],
+        description: str = "Diagnostic analysis and segment comparison"
+    ) -> Dict[str, Any]:
+        """
+        Run diagnostic analysis and segment comparison
+        
+        Args:
+            query: SQL query to get data
+            target_column: Column to analyze (target metric)
+            segment_columns: Columns to segment by
+            description: Description of the analysis
+        
+        Returns:
+            Diagnostic results
+        """
+        if not self.diagnostic_analyzer:
+            raise ValueError("Diagnostic analyzer not initialized. Call connect() first.")
+        
+        step = AnalysisStep(
+            step_number=len(self.steps) + 1,
+            description=description,
+            query=query,
+            assumptions=[
+                f"Comparing segments on metric: {target_column}",
+                f"Segmenting by: {', '.join(segment_columns)}"
+            ]
+        )
+        
+        # Get data
+        df, metadata = self.execute_query(query, explain=False)
+        
+        # Run diagnostic analysis
+        results = self.diagnostic_analyzer.diagnostic_analysis(
+            df, target_column, segment_columns
+        )
+        step.metadata = {'diagnostic_results': results}
+        step.row_count = len(df)
+        step.execution_time = metadata.get('execution_time', 0)
+        
+        # Print results
+        self.diagnostic_analyzer.print_diagnostic_results(results)
+        
+        self.steps.append(step)
+        return results
+    
     def get_analysis_summary(self) -> Dict[str, Any]:
         """Get complete summary of the analysis"""
         return {
@@ -439,5 +626,6 @@ class AnalysisFramework:
                 for s in self.steps
             ]
         }
+
 
 

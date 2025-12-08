@@ -20,6 +20,10 @@ Main framework that orchestrates the analysis process.
 - Step-by-step transparent process
 - Execution time tracking
 - Query plan analysis
+- **Sanity checks** - Data quality validation
+- **EDA** - Exploratory Data Analysis
+- **Text classification** - LLM-based text categorization
+- **Diagnostic analysis** - Segment comparison and insights
 
 **Usage:**
 ```python
@@ -49,6 +53,46 @@ Manages context from multiple sources.
 - **User Input**: Captures questions and clarifications
 - **Real-time Data**: Checks actual data in database
 
+### 3. `sanity_checker.py`
+Performs data quality sanity checks.
+
+**Features:**
+- Null value checks
+- Duplicate detection
+- Consistency validation
+- Completeness checks
+- Configurable via `sanity_check_rules.yml`
+
+### 4. `eda_analyzer.py`
+Performs Exploratory Data Analysis.
+
+**Features:**
+- Basic statistics
+- Distribution analysis
+- Relationship analysis
+- Time-series analysis
+- Automatic flag generation
+- Typical questions identification
+- Configurable via `eda_rules.yml`
+
+### 5. `text_classifier.py`
+Classifies text data using LLM.
+
+**Features:**
+- LLM-based text classification
+- User context-driven categorization
+- Custom category creation
+- Analysis of classified data
+
+### 6. `diagnostic_analyzer.py`
+Performs diagnostic analysis and segment comparison.
+
+**Features:**
+- Segment comparison
+- Statistical significance testing
+- Performance gap analysis
+- Insight generation
+
 **Usage:**
 ```python
 from context_manager import ContextManager
@@ -64,7 +108,24 @@ Complete example showing the framework in action.
 
 ## Analysis Flow
 
-### Step 1: Context Gathering
+### Phase 1: Sanity Checks
+```
+1. Run data quality checks on relevant tables
+2. Check for nulls, duplicates, inconsistencies
+3. Validate data completeness
+4. Report issues with severity levels
+```
+
+### Phase 2: EDA (Exploratory Data Analysis)
+```
+1. Calculate basic statistics
+2. Analyze distributions
+3. Check relationships between columns
+4. Identify time-series patterns
+5. Generate flags and typical questions
+```
+
+### Phase 3: Context Gathering
 ```
 1. Load schema from GitHub repo
 2. Capture user question/requirements
@@ -72,7 +133,7 @@ Complete example showing the framework in action.
 4. Check real-time data metadata
 ```
 
-### Step 2: Gradual Analysis
+### Phase 4: Gradual Analysis
 ```
 For each analysis step:
 1. Explain what the step does (plain language)
@@ -84,7 +145,23 @@ For each analysis step:
 7. Display transparent summary
 ```
 
-### Step 3: Validation Process
+### Phase 5: Text Classification (if needed)
+```
+1. Identify text columns requiring classification
+2. Use user context to create categories
+3. Apply LLM-based classification
+4. Analyze classified data
+```
+
+### Phase 6: Diagnostic Analysis
+```
+1. Compare segments on target metrics
+2. Perform statistical significance tests
+3. Identify performance gaps
+4. Generate insights
+```
+
+### Phase 7: Validation Process
 ```
 After each aggregation:
 1. Select 2-3 sample segments
@@ -205,10 +282,46 @@ framework = AnalysisFramework(schema_context=context.schema_context)
 4. **Request dashboard**: "Create a dashboard for this"
 5. **Get HTML file**: Open in browser to view
 
+## New Features Usage
+
+### Sanity Checks
+```python
+# Run sanity checks on a table
+sanity_results = framework.run_sanity_checks("users")
+```
+
+### EDA
+```python
+# Run EDA on a table
+eda_results = framework.run_eda("users", sample_size=1000)
+```
+
+### Text Classification
+```python
+# Classify text column using LLM
+classification = framework.classify_text_column(
+    table_name="support_tickets",
+    column_name="category",
+    user_context="Classify by urgency and type",
+    num_categories=5
+)
+```
+
+### Diagnostic Analysis
+```python
+# Compare segments
+diagnostic = framework.run_diagnostic_analysis(
+    query="SELECT plan, monthly_price FROM subscriptions...",
+    target_column="monthly_price",
+    segment_columns=["plan", "industry"]
+)
+```
+
 ## Next Steps
 
-1. Run `analysis_workflow_example.py` to see it in action
-2. Use `analysis_runner.py` for analysis in Cursor
-3. Request HTML dashboards when you need visualizations
-4. Customize dashboard generator for your needs
+1. Run `analysis_workflow_enhanced_example.py` to see all features
+2. Customize `sanity_check_rules.yml` for your data
+3. Customize `eda_rules.yml` for your analysis needs
+4. Use `analysis_runner.py` for analysis in Cursor
+5. Request HTML dashboards when you need visualizations
 

@@ -1,0 +1,177 @@
+# Sanity Check Rules
+# Defines rules for data quality checks on tables
+
+version: 1
+
+sanity_checks:
+  # Null value checks
+  null_checks:
+    description: "Check for null values in critical columns"
+    enabled: true
+    rules:
+      - name: "critical_columns_no_nulls"
+        description: "Critical columns should not have null values"
+        severity: "error"
+        check_type: "null_count"
+        applies_to: "all_tables"
+        critical_columns:
+          - id
+          - created_at
+        threshold: 0  # No nulls allowed
+        
+      - name: "foreign_keys_no_nulls"
+        description: "Foreign key columns should not have nulls (unless nullable)"
+        severity: "warning"
+        check_type: "null_count"
+        applies_to: "foreign_keys"
+        threshold: 0
+        
+      - name: "optional_columns_null_percentage"
+        description: "Check percentage of nulls in optional columns"
+        severity: "info"
+        check_type: "null_percentage"
+        applies_to: "optional_columns"
+        threshold: 50  # Warn if more than 50% nulls
+  
+  # Duplicate checks
+  duplicate_checks:
+    description: "Check for duplicate records"
+    enabled: true
+    rules:
+      - name: "primary_key_duplicates"
+        description: "Primary keys should be unique"
+        severity: "error"
+        check_type: "duplicate_count"
+        applies_to: "primary_keys"
+        threshold: 0
+        
+      - name: "unique_constraint_duplicates"
+        description: "Columns with unique constraints should not have duplicates"
+        severity: "error"
+        check_type: "duplicate_count"
+        applies_to: "unique_columns"
+        threshold: 0
+        
+      - name: "business_key_duplicates"
+        description: "Check for duplicate business keys (e.g., email, username)"
+        severity: "warning"
+        check_type: "duplicate_count"
+        applies_to: "business_keys"
+        threshold: 0
+        business_keys:
+          - users.email
+          - accounts.name
+  
+  # Consistency checks
+  consistency_checks:
+    description: "Check for data consistency issues"
+    enabled: true
+    rules:
+      - name: "date_range_consistency"
+        description: "Check that date ranges are logical (start < end)"
+        severity: "error"
+        check_type: "date_range"
+        applies_to: "date_columns"
+        conditions:
+          - field: "started_at"
+            comparison: "<"
+            field2: "canceled_at"
+          - field: "opened_at"
+            comparison: "<"
+            field2: "closed_at"
+            
+      - name: "numeric_range_consistency"
+        description: "Check that numeric values are within expected ranges"
+        severity: "warning"
+        check_type: "numeric_range"
+        applies_to: "numeric_columns"
+        ranges:
+          - column: "monthly_price"
+            min: 0
+            max: 100000
+          - column: "fit_score"
+            min: 0
+            max: 100
+            
+      - name: "referential_integrity"
+        description: "Check foreign key relationships exist"
+        severity: "error"
+        check_type: "foreign_key_integrity"
+        applies_to: "foreign_keys"
+        
+      - name: "enum_consistency"
+        description: "Check that enum/categorical values match expected values"
+        severity: "warning"
+        check_type: "enum_values"
+        applies_to: "categorical_columns"
+        expected_values:
+          - column: "status"
+            values: ["active", "canceled", "paused", "trial"]
+          - column: "role"
+            values: ["admin", "analyst", "viewer"]
+          - column: "plan"
+            values: ["Free", "Pro", "Enterprise"]
+  
+  # Completeness checks
+  completeness_checks:
+    description: "Check data completeness"
+    enabled: true
+    rules:
+      - name: "required_fields_completeness"
+        description: "Check that required fields are populated"
+        severity: "error"
+        check_type: "completeness"
+        applies_to: "required_columns"
+        threshold: 95  # At least 95% completeness
+        
+      - name: "recent_data_availability"
+        description: "Check that recent data is available"
+        severity: "warning"
+        check_type: "recent_data"
+        applies_to: "time_series_tables"
+        lookback_days: 7
+        threshold: 1  # At least 1 record in last 7 days
+
+# Table-specific rules
+table_specific_rules:
+  users:
+    critical_columns: [id, email, org_id]
+    business_keys: [email]
+    foreign_keys: [org_id]
+    required_columns: [full_name, email, role]
+    categorical_columns:
+      - name: role
+        expected_values: [admin, analyst, viewer]
+  
+  accounts:
+    critical_columns: [id, name]
+    business_keys: [name]
+    required_columns: [name]
+    categorical_columns:
+      - name: plan
+        expected_values: [Free, Pro, Enterprise]
+  
+  subscriptions:
+    critical_columns: [id, org_id]
+    foreign_keys: [org_id, product_id]
+    required_columns: [status, started_at]
+    date_ranges:
+      - start: started_at
+        end: canceled_at
+    numeric_ranges:
+      - column: monthly_price
+        min: 0
+        max: 100000
+  
+  events:
+    critical_columns: [id, org_id, occurred_at]
+    foreign_keys: [org_id, user_id]
+    required_columns: [event_type, occurred_at]
+    time_series: true
+
+# Severity levels
+severity_levels:
+  error: "Critical issue - data quality problem"
+  warning: "Potential issue - should be reviewed"
+  info: "Informational - good to know"
+

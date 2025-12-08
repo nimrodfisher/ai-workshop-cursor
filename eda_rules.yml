@@ -1,0 +1,172 @@
+# EDA (Exploratory Data Analysis) Rules
+# Defines rules for exploratory data analysis
+
+version: 1
+
+eda_phases:
+  # Basic statistics
+  basic_stats:
+    description: "Calculate basic descriptive statistics"
+    enabled: true
+    checks:
+      - name: "row_count"
+        description: "Total number of records"
+        always_run: true
+        
+      - name: "column_count"
+        description: "Number of columns"
+        always_run: true
+        
+      - name: "date_range"
+        description: "Date range for time-series data"
+        applies_to: "tables_with_dates"
+        date_columns: [created_at, occurred_at, timestamp, started_at]
+        
+      - name: "numeric_summary"
+        description: "Summary statistics for numeric columns"
+        applies_to: "numeric_columns"
+        statistics: [count, mean, median, std, min, max, q25, q75]
+        
+      - name: "categorical_summary"
+        description: "Value counts and distributions for categorical columns"
+        applies_to: "categorical_columns"
+        top_n: 10
+        
+      - name: "null_summary"
+        description: "Null value counts and percentages"
+        always_run: true
+  
+  # Distribution analysis
+  distribution_analysis:
+    description: "Analyze data distributions"
+    enabled: true
+    checks:
+      - name: "numeric_distribution"
+        description: "Check for normal, skewed, or unusual distributions"
+        applies_to: "numeric_columns"
+        flags:
+          - name: "high_skewness"
+            condition: "abs(skewness) > 2"
+            message: "Highly skewed distribution detected"
+            
+          - name: "outliers"
+            condition: "values > Q3 + 1.5*IQR OR values < Q1 - 1.5*IQR"
+            message: "Potential outliers detected"
+            
+          - name: "zero_inflation"
+            condition: "percentage_of_zeros > 50"
+            message: "High percentage of zero values"
+            
+      - name: "categorical_distribution"
+        description: "Analyze categorical value distributions"
+        applies_to: "categorical_columns"
+        flags:
+          - name: "high_cardinality"
+            condition: "unique_values > 50"
+            message: "High cardinality - consider grouping"
+            
+          - name: "imbalanced_classes"
+            condition: "max_class_percentage > 90"
+            message: "Highly imbalanced classes"
+            
+          - name: "rare_categories"
+            condition: "category_count < total_rows * 0.01"
+            message: "Rare categories detected (less than 1% of data)"
+  
+  # Relationship analysis
+  relationship_analysis:
+    description: "Analyze relationships between columns"
+    enabled: true
+    checks:
+      - name: "correlation_analysis"
+        description: "Calculate correlations between numeric columns"
+        applies_to: "numeric_columns"
+        threshold: 0.7
+        flags:
+          - name: "high_correlation"
+            condition: "abs(correlation) > 0.7"
+            message: "High correlation detected - potential multicollinearity"
+            
+      - name: "foreign_key_coverage"
+        description: "Check foreign key relationship coverage"
+        applies_to: "foreign_keys"
+        flags:
+          - name: "orphaned_records"
+            condition: "null_foreign_keys > 0"
+            message: "Records with null foreign keys"
+            
+          - name: "low_coverage"
+            condition: "valid_foreign_keys / total_rows < 0.9"
+            message: "Low foreign key coverage (< 90%)"
+  
+  # Time-series analysis
+  time_series_analysis:
+    description: "Analyze time-series patterns"
+    enabled: true
+    applies_to: "time_series_tables"
+    checks:
+      - name: "temporal_coverage"
+        description: "Check for gaps in time-series data"
+        flags:
+          - name: "data_gaps"
+            condition: "gap_days > 7"
+            message: "Gaps of more than 7 days detected"
+            
+          - name: "recent_data_missing"
+            condition: "last_record_date < today - 7 days"
+            message: "No recent data (last 7 days)"
+            
+      - name: "temporal_trends"
+        description: "Identify trends over time"
+        flags:
+          - name: "increasing_trend"
+            condition: "slope > 0 AND p_value < 0.05"
+            message: "Statistically significant increasing trend"
+            
+          - name: "decreasing_trend"
+            condition: "slope < 0 AND p_value < 0.05"
+            message: "Statistically significant decreasing trend"
+            
+          - name: "seasonality"
+            condition: "seasonal_pattern_detected"
+            message: "Seasonal patterns detected"
+
+# Typical questions to flag
+typical_questions:
+  - question: "Why are there so many null values in column X?"
+    trigger: "null_percentage > 30"
+    explanation: "High null percentage may indicate data quality issues or optional fields"
+    
+  - question: "Why is the distribution so skewed?"
+    trigger: "abs(skewness) > 2"
+    explanation: "Skewed distributions may require transformations or indicate data quality issues"
+    
+  - question: "Are there outliers in this data?"
+    trigger: "outliers_detected"
+    explanation: "Outliers may indicate data quality issues or require special handling"
+    
+  - question: "Why are some categories so rare?"
+    trigger: "rare_categories_detected"
+    explanation: "Rare categories may need to be grouped or handled separately"
+    
+  - question: "Is there missing data in the time series?"
+    trigger: "time_gaps_detected"
+    explanation: "Time gaps may indicate data collection issues"
+    
+  - question: "Why is there high correlation between columns?"
+    trigger: "high_correlation_detected"
+    explanation: "High correlation may indicate redundant features or multicollinearity"
+    
+  - question: "Are there duplicate records?"
+    trigger: "duplicates_detected"
+    explanation: "Duplicates may indicate data quality issues or require deduplication"
+
+# EDA output format
+output_format:
+  summary_stats: true
+  distributions: true
+  correlations: true
+  flags: true
+  visualizations: false  # Set to true if generating charts
+  recommendations: true
+
