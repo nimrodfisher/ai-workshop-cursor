@@ -465,6 +465,34 @@ def analyze_user_engagement(
 
 ---
 
+## SQL Output After Execution
+
+**CRITICAL: After executing any SQL query, you MUST output the formatted code**
+
+### Required Output Format:
+
+1. **Simple Explanation** - Plain language description (1-2 sentences)
+2. **Formatted SQL Code** - Properly indented with all comments
+3. **Results Summary** - Formatted results or summary
+
+**Example:**
+```
+## Query Execution
+
+**What this query does:**
+This query calculates total MRR by adding up monthly prices from active subscriptions, grouped by plan type.
+
+**SQL Code:**
+```sql
+[Formatted SQL with all comments preserved]
+```
+
+**Results:**
+[Results summary]
+```
+
+**See `SQL_OUTPUT_STANDARDS.md` for complete requirements**
+
 ## Enforcement
 
 These standards must be followed for:
@@ -474,6 +502,7 @@ These standards must be followed for:
 - ✅ All analysis steps added via `add_step()`
 - ✅ All custom analysis functions
 - ✅ All code examples in documentation
+- ✅ **All SQL output after execution** (formatted with explanation)
 
 **No exceptions** - code without proper documentation will be rejected.
 

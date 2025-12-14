@@ -132,6 +132,28 @@ framework.add_step(
 )
 ```
 
+**SQL Output Requirements (After Execution):**
+- ✅ **Simple explanation** in plain language (1-2 sentences)
+- ✅ **Formatted SQL code** with proper indentation and all comments
+- ✅ **Results summary** or formatted table
+- ✅ See `SQL_OUTPUT_STANDARDS.md` for complete format
+
+**Example Output Format:**
+```
+## Query Execution
+
+**What this query does:**
+[Simple explanation in plain language]
+
+**SQL Code:**
+```sql
+[Formatted SQL with all comments preserved]
+```
+
+**Results:**
+[Results summary]
+```
+
 **Use Schema Context:**
 - `models` - Table definitions
 - `relationships` - Foreign key relationships
@@ -351,6 +373,32 @@ Phase 1 → Phase 2 → Phase 3 → Phase 4 → Phase 5 → Done
 4. **Flow Explanation** - Document the complete flow from start to finish
 
 **See `CODE_GENERATION_STANDARDS.md` for complete templates and examples**
+
+### SQL Output Requirements (After Execution):
+
+**MANDATORY: After executing any SQL query, you MUST output:**
+
+1. **Simple Explanation** - Plain language description (1-2 sentences)
+2. **Formatted SQL Code** - Properly indented with all comments preserved
+3. **Results Summary** - Formatted results or summary
+
+**Format:**
+```
+## Query Execution
+
+**What this query does:**
+[Simple explanation in plain language]
+
+**SQL Code:**
+```sql
+[Formatted SQL with comments]
+```
+
+**Results:**
+[Results summary]
+```
+
+**See `SQL_OUTPUT_STANDARDS.md` for complete requirements and examples**
 
 ### Python Code Requirements:
 

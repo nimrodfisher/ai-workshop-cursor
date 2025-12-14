@@ -138,6 +138,13 @@ Phase 1: Sanity Checks → Phase 2: EDA → Phase 3: Main Analysis → Phase 4: 
 - ✅ Assumptions documented
 - ✅ See `CODE_GENERATION_STANDARDS.md` for templates
 
+### SQL Output Requirements (After Execution):
+- ✅ **Simple explanation** in plain language (1-2 sentences)
+- ✅ **Formatted SQL code** with proper indentation
+- ✅ **All comments preserved** from the query
+- ✅ **Results summary** or formatted table
+- ✅ See `SQL_OUTPUT_STANDARDS.md` for complete format requirements
+
 ---
 
 ## Phase 4: Text Classification (Conditional)

@@ -60,7 +60,8 @@ framework.close()
 
 - **`ANALYSIS_FLOW.md`** - Complete analysis workflow and execution order
 - **`AGENT_INSTRUCTIONS.md`** - Quick reference for agents
-- **`CODE_GENERATION_STANDARDS.md`** - **SQL and Python code documentation standards**
+- **`CODE_GENERATION_STANDARDS.md`** - SQL and Python code documentation standards
+- **`SQL_OUTPUT_STANDARDS.md`** - **SQL output format requirements after execution**
 - **`README_ANALYSIS_FRAMEWORK.md`** - Detailed framework documentation
 - **`NEW_FEATURES.md`** - Guide to new features
 - **`USAGE_GUIDE.md`** - Usage examples
