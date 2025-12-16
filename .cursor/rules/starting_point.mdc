@@ -1,0 +1,8 @@
+---
+alwaysApply: true
+---
+
+always follow the instructions from the agent_instructions.md file and pull the data directly from supabase mcp
+
+When printing out the queries always follow the standards guided in the SQL_OUTPUT_STANDARDS.md file
+

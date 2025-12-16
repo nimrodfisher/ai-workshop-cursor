@@ -186,6 +186,3 @@ This ensures transparency and allows users to:
 - Reuse the query
 - Learn from the analysis
 
-
-
-

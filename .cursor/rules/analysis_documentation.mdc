@@ -1,0 +1,471 @@
+---
+alwaysApply: true
+---
+
+# Analysis Documentation Standards
+
+## Purpose
+This rule guides the documentation of data analysis projects with consistent structure, clear query documentation, comprehensive EDA reports, and actionable conclusions.
+
+## Folder Structure
+
+When starting a new analysis, create the following folder structure:
+
+```
+analyses/
+└── {YYYY-MM-DD}_{analysis_slug}/
+    ├── README.md                    # Analysis overview and business context
+    ├── queries/
+    │   ├── 01_{business_question_slug}.sql
+    │   ├── 02_{business_question_slug}.sql
+    │   └── ...
+    ├── eda/
+    │   ├── eda_report.md            # Main EDA findings
+    │   └── visualizations/          # Charts and plots (if any)
+    ├── conclusions/
+    │   └── conclusions.md           # Final insights and recommendations
+    └── data/                        # Optional: sample data or exports
+        └── .gitkeep
+```
+
+### Naming Conventions
+- **Folder names**: `YYYY-MM-DD_descriptive-slug` (e.g., `2024-12-15_churn-analysis`)
+- **Query files**: `NN_business-question-slug.sql` (numbered for execution order)
+- **Use kebab-case** for all file and folder names
+- **Avoid spaces** and special characters
+
+---
+
+## README.md Template
+
+Every analysis folder must include a README.md with:
+
+```markdown
+# {Analysis Title}
+
+## Business Context
+> Brief description of why this analysis was requested and by whom.
+
+**Stakeholder(s):** {Name/Team}  
+**Date Initiated:** {YYYY-MM-DD}  
+**Status:** {In Progress | Complete | On Hold}
+
+## Business Questions
+1. {Primary question this analysis aims to answer}
+2. {Secondary question}
+3. ...
+
+## Data Sources
+| Source | Table/Dataset | Description | Freshness |
+|--------|---------------|-------------|-----------|
+| {DB}   | {schema.table}| {Brief description} | {Daily/Hourly/etc.} |
+
+## Key Definitions
+- **{Term}**: {Definition as used in this analysis}
+
+## Quick Links
+- [EDA Report](./eda/eda_report.md)
+- [Conclusions](./conclusions/conclusions.md)
+- [Queries](./queries/)
+```
+
+---
+
+## Query Documentation Standards
+
+### SQL File Header (Required)
+
+Every SQL file must begin with this header block:
+
+```sql
+/*
+================================================================================
+QUERY: {Descriptive Query Name}
+================================================================================
+Business Question: {The specific question this query answers}
+Author: {Name}
+Created: {YYYY-MM-DD}
+Last Modified: {YYYY-MM-DD}
+--------------------------------------------------------------------------------
+DESCRIPTION:
+  {2-3 sentences explaining what this query does and why}
+
+DEPENDENCIES:
+  - {schema.table_1}: {brief description of what we need from it}
+  - {schema.table_2}: {brief description}
+
+OUTPUT:
+  - {column_1}: {description and data type}
+  - {column_2}: {description and data type}
+
+NOTES:
+  - {Any assumptions, caveats, or business logic considerations}
+  - {Known limitations or edge cases}
+================================================================================
+*/
+```
+
+### SQL Formatting Rules
+
+1. **Keywords**: UPPERCASE (SELECT, FROM, WHERE, JOIN, etc.)
+2. **Identifiers**: lowercase with underscores (user_id, created_at)
+3. **Indentation**: 2 or 4 spaces (be consistent within file)
+4. **Line length**: Max 100 characters, break long lines logically
+
+### Inline Comments
+
+```sql
+-- Section: Define the analysis cohort
+WITH cohort AS (
+    SELECT 
+        user_id,
+        MIN(event_date) AS first_event_date  -- First activity date per user
+    FROM events
+    WHERE event_type = 'signup'              -- Only signup events
+      AND event_date >= '2024-01-01'         -- Analysis period start
+    GROUP BY 1
+),
+
+-- Section: Calculate user metrics
+user_metrics AS (
+    SELECT
+        c.user_id,
+        c.first_event_date,
+        COUNT(DISTINCT e.session_id) AS total_sessions,  -- Engagement proxy
+        SUM(e.revenue) AS total_revenue                  -- Lifetime value
+    FROM cohort c
+    LEFT JOIN events e 
+        ON c.user_id = e.user_id
+        AND e.event_date >= c.first_event_date
+    GROUP BY 1, 2
+)
+
+-- Final output with business-friendly column names
+SELECT
+    user_id,
+    first_event_date AS signup_date,
+    total_sessions,
+    total_revenue,
+    -- Derived metric: revenue per session
+    ROUND(total_revenue / NULLIF(total_sessions, 0), 2) AS revenue_per_session
+FROM user_metrics
+ORDER BY total_revenue DESC
+```
+
+### Query Versioning
+
+When modifying queries significantly:
+- Keep the original with suffix `_v1`
+- Create new version with incremented suffix `_v2`
+- Document changes in the header's NOTES section
+
+---
+
+## EDA Report Template
+
+Create `eda/eda_report.md` with this structure:
+
+```markdown
+# Exploratory Data Analysis Report
+
+**Analysis:** {Analysis Name}  
+**Date:** {YYYY-MM-DD}  
+**Analyst:** {Name}
+
+---
+
+## 1. Executive Summary
+
+> 3-5 bullet points of the most important findings from the EDA.
+
+- {Key finding 1}
+- {Key finding 2}
+- {Data quality issue discovered}
+
+---
+
+## 2. Data Overview
+
+### 2.1 Dataset Description
+
+| Metric | Value |
+|--------|-------|
+| Total Records | {n} |
+| Date Range | {start} to {end} |
+| Unique Users/Entities | {n} |
+| Data Source | {source} |
+
+### 2.2 Schema Summary
+
+| Column | Type | Description | % Missing | Unique Values |
+|--------|------|-------------|-----------|---------------|
+| {col}  | {type} | {desc}    | {%}       | {n}           |
+
+---
+
+## 3. Data Quality Assessment
+
+### 3.1 Missing Values
+
+{Summary of missing data patterns and their impact}
+
+| Column | Missing Count | Missing % | Handling Strategy |
+|--------|---------------|-----------|-------------------|
+| {col}  | {n}           | {%}       | {Drop/Impute/Flag}|
+
+### 3.2 Duplicates
+
+- **Duplicate rows found:** {n} ({%})
+- **Duplicate key combinations:** {description}
+- **Resolution:** {how handled}
+
+### 3.3 Outliers
+
+{Description of outlier detection method and findings}
+
+| Column | Method | Outliers Found | Range |
+|--------|--------|----------------|-------|
+| {col}  | {IQR/Z-score} | {n} ({%}) | {min-max} |
+
+### 3.4 Data Consistency Issues
+
+- {Issue 1}: {Description and impact}
+- {Issue 2}: {Description and impact}
+
+---
+
+## 4. Univariate Analysis
+
+### 4.1 Numerical Variables
+
+#### {Variable Name}
+- **Distribution:** {Normal/Skewed/Bimodal/etc.}
+- **Central Tendency:** Mean = {x}, Median = {x}
+- **Spread:** Std = {x}, IQR = {x}
+- **Notable Observations:** {insights}
+
+### 4.2 Categorical Variables
+
+#### {Variable Name}
+- **Cardinality:** {n unique values}
+- **Top Categories:** 
+  1. {category}: {%}
+  2. {category}: {%}
+- **Notable Observations:** {insights}
+
+---
+
+## 5. Bivariate/Multivariate Analysis
+
+### 5.1 Key Relationships
+
+#### {Relationship 1}: {Variable A} vs {Variable B}
+
+- **Correlation/Association:** {value/description}
+- **Visualization:** {reference to chart if applicable}
+- **Insight:** {what this tells us}
+
+### 5.2 Segmentation Findings
+
+{Any natural groupings or segments discovered}
+
+---
+
+## 6. Time-Based Patterns (if applicable)
+
+- **Trend:** {increasing/decreasing/stable}
+- **Seasonality:** {daily/weekly/monthly patterns}
+- **Anomalies:** {unusual periods identified}
+
+---
+
+## 7. Data Quality Score
+
+| Dimension | Score (1-5) | Notes |
+|-----------|-------------|-------|
+| Completeness | {x} | {comment} |
+| Accuracy | {x} | {comment} |
+| Consistency | {x} | {comment} |
+| Timeliness | {x} | {comment} |
+| **Overall** | **{x}** | |
+
+---
+
+## 8. Recommendations for Analysis
+
+1. **Include:** {What data/segments to focus on}
+2. **Exclude:** {What to filter out and why}
+3. **Transform:** {Suggested data transformations}
+4. **Investigate Further:** {Open questions for deeper analysis}
+
+---
+
+## Appendix
+
+### A. Queries Used
+- [Query 1: Data extraction](../queries/01_data-extraction.sql)
+- [Query 2: Quality checks](../queries/02_quality-checks.sql)
+
+### B. Visualizations
+- {Link or embed key charts}
+```
+
+---
+
+## Conclusions Document Template
+
+Create `conclusions/conclusions.md` with:
+
+```markdown
+# Analysis Conclusions
+
+**Analysis:** {Analysis Name}  
+**Date Completed:** {YYYY-MM-DD}  
+**Analyst:** {Name}
+
+---
+
+## Executive Summary
+
+> 1 paragraph (3-5 sentences) summarizing the key takeaway for stakeholders.
+
+{Write a clear, jargon-free summary that a non-technical stakeholder can understand}
+
+---
+
+## Key Findings
+
+### Finding 1: {Descriptive Title}
+
+**Insight:** {Clear statement of what was discovered}
+
+**Evidence:** 
+- {Supporting metric or data point}
+- {Supporting metric or data point}
+
+**Business Impact:** {Why this matters / quantified impact if possible}
+
+---
+
+### Finding 2: {Descriptive Title}
+
+**Insight:** {Clear statement}
+
+**Evidence:**
+- {Supporting data}
+
+**Business Impact:** {Why this matters}
+
+---
+
+## Answers to Business Questions
+
+| # | Business Question | Answer | Confidence |
+|---|-------------------|--------|------------|
+| 1 | {Question from README} | {Concise answer} | {High/Medium/Low} |
+| 2 | {Question} | {Answer} | {Confidence} |
+
+---
+
+## Recommendations
+
+### Immediate Actions (0-30 days)
+
+1. **{Action}**: {Brief description}
+   - Owner: {Suggested team/person}
+   - Expected Impact: {Quantified if possible}
+
+### Short-term (1-3 months)
+
+1. **{Action}**: {Description}
+
+### Long-term / Strategic
+
+1. **{Action}**: {Description}
+
+---
+
+## Limitations & Caveats
+
+- **Data Limitation:** {e.g., "Analysis excludes mobile app users due to tracking gaps"}
+- **Assumption:** {e.g., "Assumes current pricing remains unchanged"}
+- **Scope:** {e.g., "Results apply to US market only"}
+
+---
+
+## Next Steps
+
+- [ ] {Follow-up analysis needed}
+- [ ] {Data pipeline improvement}
+- [ ] {Stakeholder presentation scheduled for YYYY-MM-DD}
+
+---
+
+## Appendix: Supporting Materials
+
+- [Full EDA Report](../eda/eda_report.md)
+- [Query: {Name}](../queries/01_query-name.sql)
+- [Presentation Deck](#) (if applicable)
+```
+
+---
+
+## Automation Rules for Cursor
+
+When the user requests a new analysis:
+
+1. **Create folder structure** automatically using the template above
+2. **Generate README.md** with placeholders filled from user input
+3. **Create query files** with proper headers when writing SQL
+4. **Update README.md** as new business questions are added
+
+When the user writes SQL:
+
+1. **Always add** the standard header block
+2. **Include inline comments** for complex logic
+3. **Use CTEs** for readability over nested subqueries
+4. **Name columns** with business-friendly aliases in final SELECT
+
+When completing an analysis:
+
+1. **Prompt** to create/update EDA report if not exists
+2. **Prompt** to create conclusions document
+3. **Verify** all business questions have corresponding queries
+4. **Check** that conclusions reference supporting evidence
+
+---
+
+## Quick Reference: Comment Tags
+
+Use these tags in comments for easy searching:
+
+- `-- TODO:` Items that need to be addressed
+- `-- FIXME:` Known issues that need fixing
+- `-- HACK:` Workarounds that should be improved
+- `-- NOTE:` Important information for future readers
+- `-- QUESTION:` Unresolved questions about the logic
+- `-- BIZ_LOGIC:` Business rules embedded in code
+
+---
+
+## Example: Starting a New Analysis
+
+When user says: "Start a new analysis for customer churn"
+
+Create:
+```
+analyses/
+└── 2024-12-15_customer-churn/
+    ├── README.md (with template filled)
+    ├── queries/
+    │   └── .gitkeep
+    ├── eda/
+    │   ├── eda_report.md (with template)
+    │   └── visualizations/
+    ├── conclusions/
+    │   └── conclusions.md (with template)
+    └── data/
+        └── .gitkeep
+```
+
+Then prompt: "I've created the analysis folder structure. What are the specific business questions you want to answer about customer churn?"

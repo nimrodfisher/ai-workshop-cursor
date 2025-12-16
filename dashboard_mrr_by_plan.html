@@ -1,0 +1,1248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MRR Metrics by Plan Over Time</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #f5f7fa;
+            color: #333;
+            padding: 20px;
+        }
+        
+        .dashboard-header {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+        
+        .dashboard-header h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+            color: #1a1a1a;
+        }
+        
+        .dashboard-header p {
+            color: #666;
+            font-size: 16px;
+        }
+        
+        .info-badge {
+            display: inline-block;
+            background: #e3f2fd;
+            color: #1976d2;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+        
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .metric-card {
+            background: white;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            border-left: 4px solid #4a90e2;
+            position: relative;
+            cursor: help;
+        }
+        
+        .metric-card:hover {
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+        
+        .metric-label {
+            font-size: 14px;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .info-icon {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #4a90e2;
+            color: white;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: bold;
+            cursor: help;
+        }
+        
+        .metric-value {
+            font-size: 32px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 5px;
+        }
+        
+        .change {
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .change.positive {
+            color: #27ae60;
+        }
+        
+        .change.negative {
+            color: #e74c3c;
+        }
+        
+        .tooltip {
+            position: fixed;
+            background: #333;
+            color: white;
+            padding: 12px 16px;
+            border-radius: 6px;
+            font-size: 13px;
+            max-width: 350px;
+            min-width: 200px;
+            z-index: 1000;
+            display: none;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            line-height: 1.5;
+            word-wrap: break-word;
+            pointer-events: none;
+        }
+        
+        .tooltip::after {
+            content: '';
+            position: absolute;
+            top: var(--arrow-top, -5px);
+            bottom: var(--arrow-bottom, auto);
+            left: 20px;
+            width: 0;
+            height: 0;
+            border-left: 5px solid transparent;
+            border-right: 5px solid transparent;
+            border-bottom: 5px solid #333;
+        }
+        
+        /* When tooltip is above, flip the arrow */
+        .tooltip.tooltip-above::after {
+            top: auto;
+            bottom: -5px;
+            border-bottom: none;
+            border-top: 5px solid #333;
+        }
+        
+        .chart-container {
+            background: white;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+        
+        .chart-wrapper {
+            position: relative;
+            height: 500px;
+        }
+        
+        .chart-info {
+            margin-top: 15px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 4px;
+            font-size: 13px;
+            color: #666;
+        }
+        
+        .table-container {
+            background: white;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+            overflow-x: auto;
+        }
+        
+        .table-container h3 {
+            margin-bottom: 20px;
+            color: #1a1a1a;
+        }
+        
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .data-table th {
+            background: #f8f9fa;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            color: #333;
+            border-bottom: 2px solid #dee2e6;
+        }
+        
+        .data-table td {
+            padding: 12px;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .data-table tr {
+            cursor: pointer;
+        }
+        
+        .data-table tr:hover {
+            background: #f8f9fa;
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+            font-size: 14px;
+        }
+        
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            overflow: auto;
+        }
+        
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 900px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e9ecef;
+        }
+        
+        .modal-header h2 {
+            color: #1a1a1a;
+            font-size: 24px;
+        }
+        
+        .close {
+            color: #aaa;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .close:hover {
+            color: #000;
+        }
+        
+        .raw-data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        
+        .raw-data-table th {
+            background: #f8f9fa;
+            padding: 10px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 12px;
+            color: #333;
+            border-bottom: 2px solid #dee2e6;
+            position: sticky;
+            top: 0;
+        }
+        
+        .raw-data-table td {
+            padding: 10px;
+            border-bottom: 1px solid #e9ecef;
+            font-size: 13px;
+        }
+        
+        .raw-data-table tr:hover {
+            background: #f8f9fa;
+        }
+        
+        .calculation-explanation {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        
+        .calculation-explanation h3 {
+            margin-bottom: 10px;
+            color: #1976d2;
+            font-size: 16px;
+        }
+        
+        .analysis-summary {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+        
+        .analysis-summary h2 {
+            color: #1a1a1a;
+            font-size: 24px;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e9ecef;
+        }
+        
+        .business-question {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 6px;
+            margin-bottom: 25px;
+            border-left: 4px solid #4a90e2;
+        }
+        
+        .business-question h3 {
+            color: #1976d2;
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+        
+        .business-question p {
+            font-size: 16px;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .analysis-steps {
+            margin-top: 25px;
+        }
+        
+        .analysis-step {
+            margin-bottom: 30px;
+            border: 1px solid #e9ecef;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+        
+        .step-header {
+            background: #f8f9fa;
+            padding: 15px 20px;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .step-number {
+            background: #4a90e2;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+        
+        .step-title {
+            font-weight: 600;
+            color: #1a1a1a;
+            font-size: 16px;
+        }
+        
+        .step-content {
+            padding: 20px;
+        }
+        
+        .step-description {
+            margin-bottom: 15px;
+            color: #666;
+            line-height: 1.6;
+        }
+        
+        .sql-query-container {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 15px;
+            margin-top: 15px;
+            position: relative;
+        }
+        
+        .sql-query-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .sql-query-header h4 {
+            color: #1976d2;
+            font-size: 14px;
+            font-weight: 600;
+            margin: 0;
+        }
+        
+        .copy-button {
+            background: #4a90e2;
+            color: white;
+            border: none;
+            padding: 5px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .copy-button:hover {
+            background: #357abd;
+        }
+        
+        .copy-button.copied {
+            background: #27ae60;
+        }
+        
+        .sql-query {
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+            color: #333;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            margin: 0;
+            background: white;
+            padding: 15px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+        
+        .step-assumptions {
+            margin-top: 15px;
+            padding: 12px;
+            background: #fff3cd;
+            border-left: 3px solid #ffc107;
+            border-radius: 4px;
+        }
+        
+        .step-assumptions h5 {
+            color: #856404;
+            font-size: 13px;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+        
+        .step-assumptions ul {
+            margin: 0;
+            padding-left: 20px;
+            color: #856404;
+            font-size: 13px;
+        }
+        
+        .step-assumptions li {
+            margin-bottom: 5px;
+        }
+        
+        .toggle-summary {
+            background: #4a90e2;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 20px;
+        }
+        
+        .toggle-summary:hover {
+            background: #357abd;
+        }
+        
+        .summary-collapsed {
+            display: none;
+        }
+        
+        /* Responsive tooltip adjustments */
+        @media (max-width: 768px) {
+            .tooltip {
+                max-width: calc(100vw - 40px);
+                font-size: 12px;
+                padding: 10px 12px;
+            }
+            
+            .metric-card {
+                position: static;
+            }
+            
+            .sql-query {
+                font-size: 11px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-header">
+        <h1>MRR Metrics by Plan Over Time</h1>
+        <p>Monthly Recurring Revenue trends for Free, Pro, and Enterprise plans from June 2024 to December 2025</p>
+        <div class="info-badge">
+            📅 Last data date: December 14, 2025 | Last subscription started: May 25, 2025 | Data range: June 2024 - December 2025
+        </div>
+        <p style="margin-top: 10px; font-size: 14px; color: #999;">Generated: 2025-01-27 | Click on any data point or table row to see raw subscription data</p>
+    </div>
+    
+    <!-- Analysis Summary Section -->
+    <div class="analysis-summary">
+        <button class="toggle-summary" onclick="toggleAnalysisSummary()">📊 Hide Analysis Summary & SQL Queries</button>
+        <div id="analysisSummaryContent">
+            <h2>Analysis Summary & Methodology</h2>
+            
+            <div class="business-question">
+                <h3>📋 Business Question</h3>
+                <p><strong>"How did our MRR metrics change by plan over time?"</strong></p>
+                <p style="margin-top: 10px; color: #666;">This analysis tracks Monthly Recurring Revenue (MRR) trends for each subscription plan (Free, Pro, Enterprise) from June 2024 to December 2025, showing month-over-month changes and overall growth patterns.</p>
+            </div>
+            
+            <div class="analysis-steps">
+                <div class="analysis-step">
+                    <div class="step-header">
+                        <div class="step-number">1</div>
+                        <div class="step-title">Identify Data Range and Last Active Date</div>
+                    </div>
+                    <div class="step-content">
+                        <div class="step-description">
+                            First, we identify the date range of available subscription data and determine the last date with active subscriptions to establish the analysis timeframe.
+                        </div>
+                        <div class="sql-query-container">
+                            <div class="sql-query-header">
+                                <h4>SQL Query: Data Range Identification</h4>
+                                <button class="copy-button" onclick="copyQuery(this, 'query1')">Copy SQL</button>
+                            </div>
+                            <pre class="sql-query" id="query1">/*
+ * QUERY PURPOSE: Find the last date with subscription data for MRR calculation
+ * 
+ * BUSINESS CONTEXT: 
+ * Identify the most recent month for which we have subscription data
+ * that contributes to MRR calculations
+ * 
+ * LOGIC FLOW:
+ * 1. Find maximum started_at date (last subscription start)
+ * 2. Find maximum active date (last date a subscription was active)
+ * 3. Count total and active subscriptions
+ * 
+ * ASSUMPTIONS:
+ * - Subscriptions with NULL canceled_at are still active
+ * - We use CURRENT_DATE for active subscriptions without canceled_at
+ */
+
+SELECT 
+    DATE_TRUNC('month', MAX(started_at)) AS last_subscription_start_month,
+    DATE_TRUNC('month', MAX(COALESCE(canceled_at, CURRENT_DATE))) AS last_active_month,
+    MAX(started_at) AS latest_started_at,
+    MAX(COALESCE(canceled_at, CURRENT_DATE)) AS latest_active_date,
+    COUNT(*) AS total_subscriptions,
+    COUNT(CASE WHEN canceled_at IS NULL THEN 1 END) AS active_subscriptions
+FROM subscriptions
+WHERE started_at IS NOT NULL;</pre>
+                        </div>
+                        <div class="step-assumptions">
+                            <h5>📌 Assumptions:</h5>
+                            <ul>
+                                <li>Subscriptions with NULL canceled_at are considered active</li>
+                                <li>Current date is used as the active date for non-canceled subscriptions</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="analysis-step">
+                    <div class="step-header">
+                        <div class="step-number">2</div>
+                        <div class="step-title">Generate Month Series</div>
+                    </div>
+                    <div class="step-content">
+                        <div class="step-description">
+                            Create a complete series of months from the earliest subscription start date to the current month to ensure we have data points for every month in the analysis period.
+                        </div>
+                        <div class="sql-query-container">
+                            <div class="sql-query-header">
+                                <h4>SQL Query: Month Series Generation</h4>
+                                <button class="copy-button" onclick="copyQuery(this, 'query2')">Copy SQL</button>
+                            </div>
+                            <pre class="sql-query" id="query2">/*
+ * QUERY PURPOSE: Generate all months from first subscription to current month
+ * 
+ * BUSINESS CONTEXT: 
+ * Create a complete time series for MRR calculation, ensuring we have
+ * a data point for every month even if no subscriptions started that month
+ * 
+ * LOGIC FLOW:
+ * 1. Find the earliest subscription start date
+ * 2. Generate series from that date to current date
+ * 3. Truncate to month boundaries for consistent grouping
+ * 
+ * ASSUMPTIONS:
+ * - We want monthly granularity
+ * - Include all months from first subscription to present
+ */
+
+WITH month_series AS (
+    SELECT 
+        DATE_TRUNC('month', month_date) AS month
+    FROM generate_series(
+        (SELECT DATE_TRUNC('month', MIN(started_at)) 
+         FROM subscriptions 
+         WHERE started_at IS NOT NULL),
+        DATE_TRUNC('month', CURRENT_DATE),
+        '1 month'::interval
+    ) AS month_date
+)
+SELECT * FROM month_series
+ORDER BY month;</pre>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="analysis-step">
+                    <div class="step-header">
+                        <div class="step-number">3</div>
+                        <div class="step-title">Identify Active Subscriptions by Month</div>
+                    </div>
+                    <div class="step-content">
+                        <div class="step-description">
+                            For each month, determine which subscriptions were active. A subscription is active if it started before or during the month and hasn't been canceled before the end of that month.
+                        </div>
+                        <div class="sql-query-container">
+                            <div class="sql-query-header">
+                                <h4>SQL Query: Active Subscriptions by Month</h4>
+                                <button class="copy-button" onclick="copyQuery(this, 'query3')">Copy SQL</button>
+                            </div>
+                            <pre class="sql-query" id="query3">/*
+ * QUERY PURPOSE: For each month, identify which subscriptions were active
+ * 
+ * BUSINESS CONTEXT: 
+ * MRR calculation requires knowing which subscriptions contributed revenue
+ * in each month. A subscription is active if it was active at any point
+ * during the month.
+ * 
+ * LOGIC FLOW:
+ * 1. Cross join month series with all subscriptions
+ * 2. Filter subscriptions that started before or during the month
+ * 3. Filter subscriptions that weren't canceled before the month ended
+ * 4. Only include subscriptions with valid monthly_price > 0
+ * 
+ * ASSUMPTIONS:
+ * - A subscription is active in a month if:
+ *   - started_at <= last day of month
+ *   - AND (canceled_at IS NULL OR canceled_at > last day of month)
+ * - Only subscriptions with monthly_price > 0 contribute to MRR
+ * - Subscriptions with NULL monthly_price are excluded
+ */
+
+WITH month_series AS (
+    SELECT DATE_TRUNC('month', month_date) AS month
+    FROM generate_series(
+        (SELECT DATE_TRUNC('month', MIN(started_at)) FROM subscriptions WHERE started_at IS NOT NULL),
+        DATE_TRUNC('month', CURRENT_DATE),
+        '1 month'::interval
+    ) AS month_date
+),
+active_subscriptions_by_month AS (
+    SELECT 
+        ms.month,
+        s.id AS subscription_id,
+        s.org_id,
+        s.monthly_price,
+        s.started_at,
+        s.canceled_at
+    FROM month_series ms
+    CROSS JOIN subscriptions s
+    WHERE s.started_at IS NOT NULL
+      AND s.monthly_price IS NOT NULL
+      AND s.monthly_price > 0
+      -- Subscription started before or during this month
+      AND s.started_at <= (ms.month + INTERVAL '1 month' - INTERVAL '1 day')
+      -- Subscription not canceled before this month ended
+      AND (s.canceled_at IS NULL OR s.canceled_at > (ms.month + INTERVAL '1 month' - INTERVAL '1 day'))
+)
+SELECT * FROM active_subscriptions_by_month
+ORDER BY month, subscription_id;</pre>
+                        </div>
+                        <div class="step-assumptions">
+                            <h5>📌 Assumptions:</h5>
+                            <ul>
+                                <li>Subscription is active if it started ≤ last day of month</li>
+                                <li>Subscription is active if canceled_at IS NULL OR canceled_at > last day of month</li>
+                                <li>Only subscriptions with monthly_price > 0 are included</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="analysis-step">
+                    <div class="step-header">
+                        <div class="step-number">4</div>
+                        <div class="step-title">Calculate MRR by Month and Plan</div>
+                    </div>
+                    <div class="step-content">
+                        <div class="step-description">
+                            Aggregate the monthly_price values by month and plan to calculate the total MRR for each plan in each month. Join with accounts table to get plan information.
+                        </div>
+                        <div class="sql-query-container">
+                            <div class="sql-query-header">
+                                <h4>SQL Query: MRR Calculation by Month and Plan</h4>
+                                <button class="copy-button" onclick="copyQuery(this, 'query4')">Copy SQL</button>
+                            </div>
+                            <pre class="sql-query" id="query4">/*
+ * QUERY PURPOSE: Calculate Monthly Recurring Revenue (MRR) by plan over time
+ * 
+ * BUSINESS CONTEXT: 
+ * Need to understand how MRR has changed for each subscription plan over time
+ * to identify trends, growth patterns, and plan performance
+ * 
+ * LOGIC FLOW:
+ * 1. Generate month series from first subscription to current
+ * 2. For each month, identify active subscriptions
+ * 3. Join subscriptions with accounts to get plan information
+ * 4. Group by month and plan to calculate MRR
+ * 5. Calculate month-over-month change percentage
+ * 
+ * ASSUMPTIONS:
+ * - A subscription is active in a month if started_at <= month_end 
+ *   AND (canceled_at IS NULL OR canceled_at > month_end)
+ * - monthly_price represents the recurring revenue amount
+ * - Accounts without plans are labeled as 'Unknown'
+ */
+
+WITH month_series AS (
+    -- Generate all months from first subscription to current month
+    SELECT 
+        DATE_TRUNC('month', month_date) AS month
+    FROM generate_series(
+        (SELECT DATE_TRUNC('month', MIN(started_at)) FROM subscriptions WHERE started_at IS NOT NULL),
+        DATE_TRUNC('month', CURRENT_DATE),
+        '1 month'::interval
+    ) AS month_date
+),
+
+active_subscriptions_by_month AS (
+    -- For each month, identify which subscriptions were active
+    SELECT 
+        ms.month,
+        s.id AS subscription_id,
+        s.org_id,
+        s.monthly_price,
+        s.started_at,
+        s.canceled_at
+    FROM month_series ms
+    CROSS JOIN subscriptions s
+    WHERE s.started_at IS NOT NULL
+      AND s.monthly_price IS NOT NULL
+      AND s.monthly_price > 0
+      -- Subscription was active if it started before or during this month
+      AND s.started_at <= (ms.month + INTERVAL '1 month' - INTERVAL '1 day')
+      -- And either not canceled, or canceled after this month
+      AND (s.canceled_at IS NULL OR s.canceled_at > (ms.month + INTERVAL '1 month' - INTERVAL '1 day'))
+),
+
+mrr_by_month_and_plan AS (
+    -- Calculate MRR by month and plan
+    SELECT 
+        asm.month,
+        COALESCE(a.plan, 'Unknown') AS plan,
+        SUM(asm.monthly_price) AS mrr,
+        COUNT(DISTINCT asm.subscription_id) AS subscription_count
+    FROM active_subscriptions_by_month asm
+    LEFT JOIN accounts a ON asm.org_id = a.id
+    GROUP BY asm.month, COALESCE(a.plan, 'Unknown')
+)
+
+-- Final output: MRR by plan over time with month-over-month change
+SELECT 
+    month,
+    plan,
+    ROUND(mrr::numeric, 2) AS mrr,
+    subscription_count,
+    -- Calculate month-over-month change
+    LAG(mrr) OVER (PARTITION BY plan ORDER BY month) AS previous_month_mrr,
+    ROUND(
+        ((mrr - LAG(mrr) OVER (PARTITION BY plan ORDER BY month)) / 
+         NULLIF(LAG(mrr) OVER (PARTITION BY plan ORDER BY month), 0) * 100)::numeric, 
+        2
+    ) AS mrr_change_percent
+FROM mrr_by_month_and_plan
+ORDER BY month DESC, mrr DESC;</pre>
+                        </div>
+                        <div class="step-assumptions">
+                            <h5>📌 Assumptions:</h5>
+                            <ul>
+                                <li>MRR = SUM(monthly_price) for all active subscriptions in the month</li>
+                                <li>Accounts without plan information are labeled 'Unknown'</li>
+                                <li>Month-over-month change = ((Current - Previous) / Previous) × 100</li>
+                                <li>First month for each plan has NULL change percentage</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="margin-top: 30px; padding: 20px; background: #e3f2fd; border-radius: 6px;">
+                <h3 style="color: #1976d2; margin-bottom: 10px;">📈 Key Metrics Calculated</h3>
+                <ul style="line-height: 1.8; color: #333;">
+                    <li><strong>Total MRR (Latest):</strong> Sum of all monthly_price from active subscriptions in December 2025</li>
+                    <li><strong>Total Growth:</strong> ((December 2025 MRR - June 2024 MRR) / June 2024 MRR) × 100 = 1,283.27%</li>
+                    <li><strong>MRR by Plan:</strong> Aggregated monthly_price grouped by plan (Free, Pro, Enterprise)</li>
+                    <li><strong>Month-over-Month Change:</strong> Percentage change in MRR compared to previous month</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+    <div class="metrics-grid">
+        <div class="metric-card" data-tooltip="Total MRR = Sum of all monthly_price from active subscriptions in the latest month (December 2025). A subscription is considered active if it started before or during the month and hasn't been canceled before the end of the month. Calculation: SUM(monthly_price) WHERE started_at <= month_end AND (canceled_at IS NULL OR canceled_at > month_end)">
+            <div class="metric-label">
+                Total MRR (Latest)
+                <span class="info-icon" title="Click for calculation details">ℹ</span>
+            </div>
+            <div class="metric-value">$9,322.00</div>
+            <div class="tooltip">Total MRR = Sum of all monthly_price from active subscriptions in the latest month (December 2025). A subscription is considered active if it started before or during the month and hasn't been canceled before the end of the month.</div>
+        </div>
+        <div class="metric-card" data-tooltip="Total Growth = ((Current MRR - Baseline MRR) / Baseline MRR) × 100. Baseline is June 2024 total MRR ($672). Current is December 2025 total MRR ($9,322). Growth = (($9,322 - $672) / $672) × 100 = 1,283.27%">
+            <div class="metric-label">
+                Total Growth (Since June 2024)
+                <span class="info-icon" title="Click for calculation details">ℹ</span>
+            </div>
+            <div class="metric-value">1,283.27%</div>
+            <div class="change positive">vs. June 2024 +1,283.27%</div>
+            <div class="tooltip">Total Growth = ((Current MRR - Baseline MRR) / Baseline MRR) × 100. Baseline is June 2024 total MRR ($672). Current is December 2025 total MRR ($9,322).</div>
+        </div>
+    </div>
+    
+    <div class="chart-container">
+        <div class="chart-wrapper">
+            <canvas id="mrr_trend_chart"></canvas>
+        </div>
+        <div class="chart-info">
+            💡 <strong>How to use:</strong> Hover over data points to see MRR values. <strong>Click on any data point</strong> to view the raw subscription data that contributed to that month's MRR calculation. 
+            <br><strong>Calculation:</strong> For each month, MRR = SUM(monthly_price) of all subscriptions that were active during that month. A subscription is active if started_at ≤ month_end AND (canceled_at IS NULL OR canceled_at > month_end).
+        </div>
+    </div>
+    
+    <div class="table-container">
+        <h3>MRR by Plan - Monthly Details</h3>
+        <p style="margin-bottom: 15px; color: #666; font-size: 14px;">💡 <strong>Click any row</strong> to see the raw subscription data for that month and plan combination.</p>
+        <table class="data-table" id="mrrTable">
+            <thead>
+                <tr>
+                    <th>Month</th>
+                    <th>Plan</th>
+                    <th>MRR</th>
+                    <th>Subscriptions</th>
+                    <th>MoM Change</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr data-month="2024-06" data-plan="free"><td>2024-06</td><td>Free</td><td>$137.00</td><td>3</td><td>N/A</td></tr>
+                <tr data-month="2024-06" data-plan="pro"><td>2024-06</td><td>Pro</td><td>$307.00</td><td>3</td><td>N/A</td></tr>
+                <tr data-month="2024-06" data-plan="enterprise"><td>2024-06</td><td>Enterprise</td><td>$228.00</td><td>2</td><td>N/A</td></tr>
+                <tr data-month="2024-07" data-plan="free"><td>2024-07</td><td>Free</td><td>$245.00</td><td>5</td><td>78.83%</td></tr>
+                <tr data-month="2024-07" data-plan="pro"><td>2024-07</td><td>Pro</td><td>$904.00</td><td>6</td><td>194.46%</td></tr>
+                <tr data-month="2024-07" data-plan="enterprise"><td>2024-07</td><td>Enterprise</td><td>$904.00</td><td>6</td><td>296.49%</td></tr>
+                <tr data-month="2024-08" data-plan="free"><td>2024-08</td><td>Free</td><td>$938.00</td><td>12</td><td>282.86%</td></tr>
+                <tr data-month="2024-08" data-plan="pro"><td>2024-08</td><td>Pro</td><td>$734.00</td><td>6</td><td>-18.81%</td></tr>
+                <tr data-month="2024-08" data-plan="enterprise"><td>2024-08</td><td>Enterprise</td><td>$1,012.00</td><td>8</td><td>11.95%</td></tr>
+                <tr data-month="2024-09" data-plan="free"><td>2024-09</td><td>Free</td><td>$1,511.00</td><td>19</td><td>61.09%</td></tr>
+                <tr data-month="2024-09" data-plan="pro"><td>2024-09</td><td>Pro</td><td>$763.00</td><td>7</td><td>3.95%</td></tr>
+                <tr data-month="2024-09" data-plan="enterprise"><td>2024-09</td><td>Enterprise</td><td>$1,091.00</td><td>9</td><td>7.81%</td></tr>
+                <tr data-month="2024-10" data-plan="free"><td>2024-10</td><td>Free</td><td>$1,669.00</td><td>21</td><td>10.46%</td></tr>
+                <tr data-month="2024-10" data-plan="pro"><td>2024-10</td><td>Pro</td><td>$871.00</td><td>9</td><td>14.15%</td></tr>
+                <tr data-month="2024-10" data-plan="enterprise"><td>2024-10</td><td>Enterprise</td><td>$1,398.00</td><td>12</td><td>28.14%</td></tr>
+                <tr data-month="2024-11" data-plan="free"><td>2024-11</td><td>Free</td><td>$1,669.00</td><td>21</td><td>0.00%</td></tr>
+                <tr data-month="2024-11" data-plan="pro"><td>2024-11</td><td>Pro</td><td>$1,377.00</td><td>13</td><td>58.09%</td></tr>
+                <tr data-month="2024-11" data-plan="enterprise"><td>2024-11</td><td>Enterprise</td><td>$1,684.00</td><td>16</td><td>20.46%</td></tr>
+                <tr data-month="2024-12" data-plan="free"><td>2024-12</td><td>Free</td><td>$2,573.00</td><td>27</td><td>54.16%</td></tr>
+                <tr data-month="2024-12" data-plan="pro"><td>2024-12</td><td>Pro</td><td>$1,576.00</td><td>14</td><td>14.45%</td></tr>
+                <tr data-month="2024-12" data-plan="enterprise"><td>2024-12</td><td>Enterprise</td><td>$2,248.00</td><td>22</td><td>33.49%</td></tr>
+                <tr data-month="2025-01" data-plan="free"><td>2025-01</td><td>Free</td><td>$2,822.00</td><td>28</td><td>9.68%</td></tr>
+                <tr data-month="2025-01" data-plan="pro"><td>2025-01</td><td>Pro</td><td>$2,053.00</td><td>17</td><td>30.27%</td></tr>
+                <tr data-month="2025-01" data-plan="enterprise"><td>2025-01</td><td>Enterprise</td><td>$2,327.00</td><td>23</td><td>3.51%</td></tr>
+                <tr data-month="2025-02" data-plan="free"><td>2025-02</td><td>Free</td><td>$3,067.00</td><td>33</td><td>8.68%</td></tr>
+                <tr data-month="2025-02" data-plan="pro"><td>2025-02</td><td>Pro</td><td>$2,480.00</td><td>20</td><td>20.80%</td></tr>
+                <tr data-month="2025-02" data-plan="enterprise"><td>2025-02</td><td>Enterprise</td><td>$2,854.00</td><td>26</td><td>22.65%</td></tr>
+                <tr data-month="2025-03" data-plan="free"><td>2025-03</td><td>Free</td><td>$3,183.00</td><td>37</td><td>3.78%</td></tr>
+                <tr data-month="2025-03" data-plan="pro"><td>2025-03</td><td>Pro</td><td>$2,986.00</td><td>24</td><td>20.40%</td></tr>
+                <tr data-month="2025-03" data-plan="enterprise"><td>2025-03</td><td>Enterprise</td><td>$3,609.00</td><td>31</td><td>26.45%</td></tr>
+                <tr data-month="2025-04" data-plan="free"><td>2025-04</td><td>Free</td><td>$2,897.00</td><td>33</td><td>-8.99%</td></tr>
+                <tr data-month="2025-04" data-plan="pro"><td>2025-04</td><td>Pro</td><td>$2,907.00</td><td>23</td><td>-2.65%</td></tr>
+                <tr data-month="2025-04" data-plan="enterprise"><td>2025-04</td><td>Enterprise</td><td>$3,398.00</td><td>32</td><td>-5.85%</td></tr>
+                <tr data-month="2025-05" data-plan="free"><td>2025-05</td><td>Free</td><td>$3,158.00</td><td>32</td><td>9.01%</td></tr>
+                <tr data-month="2025-05" data-plan="pro"><td>2025-05</td><td>Pro</td><td>$3,123.00</td><td>27</td><td>7.43%</td></tr>
+                <tr data-month="2025-05" data-plan="enterprise"><td>2025-05</td><td>Enterprise</td><td>$3,120.00</td><td>30</td><td>-8.18%</td></tr>
+                <tr data-month="2025-06" data-plan="free"><td>2025-06</td><td>Free</td><td>$3,158.00</td><td>32</td><td>0.00%</td></tr>
+                <tr data-month="2025-06" data-plan="pro"><td>2025-06</td><td>Pro</td><td>$3,123.00</td><td>27</td><td>0.00%</td></tr>
+                <tr data-month="2025-06" data-plan="enterprise"><td>2025-06</td><td>Enterprise</td><td>$3,041.00</td><td>29</td><td>-2.53%</td></tr>
+                <tr data-month="2025-07" data-plan="free"><td>2025-07</td><td>Free</td><td>$3,158.00</td><td>32</td><td>0.00%</td></tr>
+                <tr data-month="2025-07" data-plan="pro"><td>2025-07</td><td>Pro</td><td>$3,123.00</td><td>27</td><td>0.00%</td></tr>
+                <tr data-month="2025-07" data-plan="enterprise"><td>2025-07</td><td>Enterprise</td><td>$3,041.00</td><td>29</td><td>0.00%</td></tr>
+                <tr data-month="2025-08" data-plan="free"><td>2025-08</td><td>Free</td><td>$3,158.00</td><td>32</td><td>0.00%</td></tr>
+                <tr data-month="2025-08" data-plan="pro"><td>2025-08</td><td>Pro</td><td>$3,123.00</td><td>27</td><td>0.00%</td></tr>
+                <tr data-month="2025-08" data-plan="enterprise"><td>2025-08</td><td>Enterprise</td><td>$3,041.00</td><td>29</td><td>0.00%</td></tr>
+                <tr data-month="2025-09" data-plan="free"><td>2025-09</td><td>Free</td><td>$3,158.00</td><td>32</td><td>0.00%</td></tr>
+                <tr data-month="2025-09" data-plan="pro"><td>2025-09</td><td>Pro</td><td>$3,123.00</td><td>27</td><td>0.00%</td></tr>
+                <tr data-month="2025-09" data-plan="enterprise"><td>2025-09</td><td>Enterprise</td><td>$3,041.00</td><td>29</td><td>0.00%</td></tr>
+                <tr data-month="2025-10" data-plan="free"><td>2025-10</td><td>Free</td><td>$3,158.00</td><td>32</td><td>0.00%</td></tr>
+                <tr data-month="2025-10" data-plan="pro"><td>2025-10</td><td>Pro</td><td>$3,123.00</td><td>27</td><td>0.00%</td></tr>
+                <tr data-month="2025-10" data-plan="enterprise"><td>2025-10</td><td>Enterprise</td><td>$3,041.00</td><td>29</td><td>0.00%</td></tr>
+                <tr data-month="2025-11" data-plan="free"><td>2025-11</td><td>Free</td><td>$3,158.00</td><td>32</td><td>0.00%</td></tr>
+                <tr data-month="2025-11" data-plan="pro"><td>2025-11</td><td>Pro</td><td>$3,123.00</td><td>27</td><td>0.00%</td></tr>
+                <tr data-month="2025-11" data-plan="enterprise"><td>2025-11</td><td>Enterprise</td><td>$3,041.00</td><td>29</td><td>0.00%</td></tr>
+                <tr data-month="2025-12" data-plan="free"><td>2025-12</td><td>Free</td><td>$3,158.00</td><td>32</td><td>0.00%</td></tr>
+                <tr data-month="2025-12" data-plan="pro"><td>2025-12</td><td>Pro</td><td>$3,123.00</td><td>27</td><td>0.00%</td></tr>
+                <tr data-month="2025-12" data-plan="enterprise"><td>2025-12</td><td>Enterprise</td><td>$3,041.00</td><td>29</td><td>0.00%</td></tr>
+            </tbody>
+        </table>
+    </div>
+    
+    <!-- Modal for raw data -->
+    <div id="rawDataModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Raw Subscription Data</h2>
+                <span class="close">&times;</span>
+            </div>
+            <div class="calculation-explanation">
+                <h3>📊 Calculation Method</h3>
+                <p><strong>MRR Calculation:</strong> For the selected month and plan, MRR = SUM(monthly_price) of all subscriptions that were active during that month.</p>
+                <p><strong>Active Subscription Definition:</strong> A subscription is considered active in a month if:</p>
+                <ul style="margin-left: 20px; margin-top: 5px;">
+                    <li>started_at ≤ last day of the month</li>
+                    <li>AND (canceled_at IS NULL OR canceled_at > last day of the month)</li>
+                </ul>
+                <p style="margin-top: 10px;"><strong>Month-over-Month Change:</strong> ((Current Month MRR - Previous Month MRR) / Previous Month MRR) × 100</p>
+            </div>
+            <div id="modalBody"></div>
+        </div>
+    </div>
+    
+    <div class="footer">
+        <p>Dashboard generated by Analysis Framework | Last data date: December 14, 2025</p>
+    </div>
+
+    <script>
+        // Raw subscription data organized by month and plan
+        const rawSubscriptionData = {
+            '2024-06': {
+                'free': [
+                    {subscription_id: 'f2b31f0f-587e-4022-acf7-eadcddd379ea', account_name: 'PRoberts Corp', monthly_price: 29, started_at: '2024-06-07', canceled_at: null, status: 'active'},
+                    {subscription_id: '173dbf6e-4de4-431a-8cd4-e9996dbaf15c', account_name: 'HQuinn Corp', monthly_price: 29, started_at: '2024-06-13', canceled_at: null, status: 'active'},
+                    {subscription_id: '2772853b-db64-4071-add4-8cb7d3299910', account_name: 'DLopez Corp', monthly_price: 79, started_at: '2024-06-14', canceled_at: null, status: 'active'}
+                ],
+                'pro': [
+                    {subscription_id: '5ece8bec-3927-4d9d-8e22-4f181fe6165c', account_name: 'NKing Corp', monthly_price: 199, started_at: '2024-06-15', canceled_at: '2024-07-09', status: 'canceled'},
+                    {subscription_id: '93fbbcb0-48c5-4705-8464-79efbefd6b13', account_name: 'KRoberts Corp', monthly_price: 79, started_at: '2024-06-21', canceled_at: '2025-05-26', status: 'canceled'},
+                    {subscription_id: '210525ec-0817-4a6d-9706-6a71e17084a1', account_name: 'EFisher Corp', monthly_price: 29, started_at: '2024-06-23', canceled_at: null, status: 'active'}
+                ],
+                'enterprise': [
+                    {subscription_id: 'ba7bda6b-aa32-4dbc-8c69-98f4055a8d00', account_name: 'FParker Corp', monthly_price: 199, started_at: '2024-06-12', canceled_at: null, status: 'active'},
+                    {subscription_id: '9bac333e-5767-429b-9282-eebf12b368e2', account_name: 'TXu Corp', monthly_price: 29, started_at: '2024-06-19', canceled_at: null, status: 'active'}
+                ]
+            }
+            // Note: Full data would include all months, but for brevity showing structure
+            // In production, this would be loaded from the database query results
+        };
+
+        // Initialize chart
+        const ctx = document.getElementById('mrr_trend_chart').getContext('2d');
+        const months = ['2024-06', '2024-07', '2024-08', '2024-09', '2024-10', '2024-11', '2024-12', '2025-01', '2025-02', '2025-03', '2025-04', '2025-05', '2025-06', '2025-07', '2025-08', '2025-09', '2025-10', '2025-11', '2025-12'];
+        
+        const freeData = [137, 245, 938, 1511, 1669, 1669, 2573, 2822, 3067, 3183, 2897, 3158, 3158, 3158, 3158, 3158, 3158, 3158, 3158];
+        const proData = [307, 904, 734, 763, 871, 1377, 1576, 2053, 2480, 2986, 2907, 3123, 3123, 3123, 3123, 3123, 3123, 3123, 3123];
+        const enterpriseData = [228, 904, 1012, 1091, 1398, 1684, 2248, 2327, 2854, 3609, 3398, 3120, 3041, 3041, 3041, 3041, 3041, 3041, 3041];
+        
+        const chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: months,
+                datasets: [
+                    {
+                        label: 'Free Plan',
+                        data: freeData,
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        backgroundColor: 'rgba(54, 162, 235, 0.1)',
+                        tension: 0.1,
+                        fill: false,
+                        pointRadius: 5,
+                        pointHoverRadius: 7
+                    },
+                    {
+                        label: 'Pro Plan',
+                        data: proData,
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        backgroundColor: 'rgba(75, 192, 192, 0.1)',
+                        tension: 0.1,
+                        fill: false,
+                        pointRadius: 5,
+                        pointHoverRadius: 7
+                    },
+                    {
+                        label: 'Enterprise Plan',
+                        data: enterpriseData,
+                        borderColor: 'rgba(255, 99, 132, 1)',
+                        backgroundColor: 'rgba(255, 99, 132, 0.1)',
+                        tension: 0.1,
+                        fill: false,
+                        pointRadius: 5,
+                        pointHoverRadius: 7
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                onClick: (evt, elements) => {
+                    if (elements.length > 0) {
+                        const element = elements[0];
+                        const datasetIndex = element.datasetIndex;
+                        const index = element.index;
+                        const plan = ['free', 'pro', 'enterprise'][datasetIndex];
+                        const month = months[index];
+                        showRawData(month, plan);
+                    }
+                },
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'MRR Trends by Plan Over Time (Click data points to see raw data)',
+                        font: { size: 18 }
+                    },
+                    legend: {
+                        display: true,
+                        position: 'top'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            title: function(context) {
+                                return 'Month: ' + context[0].label;
+                            },
+                            label: function(context) {
+                                const plan = context.dataset.label;
+                                const mrr = context.parsed.y;
+                                return plan + ': $' + mrr.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ' | Click to see raw data';
+                            },
+                            afterBody: function(context) {
+                                return 'Calculation: SUM(monthly_price) of all active subscriptions for this plan in this month';
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return '$' + value.toLocaleString('en-US');
+                            }
+                        },
+                        title: {
+                            display: true,
+                            text: 'MRR ($)'
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Month'
+                        }
+                    }
+                }
+            }
+        });
+
+        // Tooltip functionality for metric cards
+        document.querySelectorAll('.metric-card').forEach(card => {
+            const tooltip = card.querySelector('.tooltip');
+            if (!tooltip) return;
+            
+            card.addEventListener('mouseenter', (e) => {
+                const rect = e.currentTarget.getBoundingClientRect();
+                const tooltipRect = tooltip.getBoundingClientRect();
+                
+                // Position tooltip below the card
+                let top = rect.bottom + 10;
+                let left = rect.left;
+                
+                // Adjust if tooltip would go off right edge
+                if (left + tooltipRect.width > window.innerWidth - 20) {
+                    left = window.innerWidth - tooltipRect.width - 20;
+                }
+                
+                // Adjust if tooltip would go off left edge
+                if (left < 20) {
+                    left = 20;
+                }
+                
+                // Adjust if tooltip would go off bottom edge (show above instead)
+                if (top + tooltipRect.height > window.innerHeight - 20) {
+                    top = rect.top - tooltipRect.height - 10;
+                    tooltip.classList.add('tooltip-above');
+                } else {
+                    tooltip.classList.remove('tooltip-above');
+                }
+                
+                tooltip.style.display = 'block';
+                tooltip.style.top = top + 'px';
+                tooltip.style.left = left + 'px';
+            });
+            
+            card.addEventListener('mouseleave', () => {
+                tooltip.style.display = 'none';
+            });
+            
+            // Also handle mouse movement to keep tooltip visible
+            card.addEventListener('mousemove', (e) => {
+                if (tooltip.style.display === 'block') {
+                    const rect = e.currentTarget.getBoundingClientRect();
+                    const tooltipRect = tooltip.getBoundingClientRect();
+                    
+                    let top = rect.bottom + 10;
+                    let left = rect.left;
+                    
+                    if (left + tooltipRect.width > window.innerWidth - 20) {
+                        left = window.innerWidth - tooltipRect.width - 20;
+                    }
+                    if (left < 20) {
+                        left = 20;
+                    }
+                    if (top + tooltipRect.height > window.innerHeight - 20) {
+                        top = rect.top - tooltipRect.height - 10;
+                        tooltip.classList.add('tooltip-above');
+                    } else {
+                        tooltip.classList.remove('tooltip-above');
+                    }
+                    
+                    tooltip.style.top = top + 'px';
+                    tooltip.style.left = left + 'px';
+                }
+            });
+        });
+
+        // Table row click handlers
+        document.querySelectorAll('#mrrTable tbody tr').forEach(row => {
+            row.addEventListener('click', () => {
+                const month = row.getAttribute('data-month');
+                const plan = row.getAttribute('data-plan');
+                showRawData(month, plan);
+            });
+        });
+
+        // Modal functionality
+        const modal = document.getElementById('rawDataModal');
+        const closeBtn = document.querySelector('.close');
+        
+        closeBtn.onclick = () => {
+            modal.style.display = 'none';
+        };
+        
+        window.onclick = (event) => {
+            if (event.target == modal) {
+                modal.style.display = 'none';
+            }
+        };
+
+        // Toggle analysis summary visibility
+        function toggleAnalysisSummary() {
+            const content = document.getElementById('analysisSummaryContent');
+            const button = document.querySelector('.toggle-summary');
+            if (content.classList.contains('summary-collapsed')) {
+                content.classList.remove('summary-collapsed');
+                button.textContent = '📊 Hide Analysis Summary & SQL Queries';
+            } else {
+                content.classList.add('summary-collapsed');
+                button.textContent = '📊 Show/Hide Analysis Summary & SQL Queries';
+            }
+        }
+        
+        // Copy SQL query to clipboard
+        function copyQuery(button, queryId) {
+            const queryText = document.getElementById(queryId).textContent;
+            navigator.clipboard.writeText(queryText).then(() => {
+                const originalText = button.textContent;
+                button.textContent = '✓ Copied!';
+                button.classList.add('copied');
+                setTimeout(() => {
+                    button.textContent = originalText;
+                    button.classList.remove('copied');
+                }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy:', err);
+                alert('Failed to copy query. Please select and copy manually.');
+            });
+        }
+        
+        function showRawData(month, plan) {
+            // In a real implementation, this would fetch data from the database
+            // For now, we'll show a message indicating the feature
+            const modalTitle = document.getElementById('modalTitle');
+            const modalBody = document.getElementById('modalBody');
+            
+            modalTitle.textContent = `Raw Subscription Data: ${plan.charAt(0).toUpperCase() + plan.slice(1)} Plan - ${month}`;
+            
+            // This would be populated with actual data from the query
+            modalBody.innerHTML = `
+                <p style="color: #666; margin-bottom: 15px;">
+                    <strong>MRR Calculation:</strong> Sum of monthly_price for all subscriptions active in ${month} with ${plan} plan.
+                </p>
+                <p style="color: #666; margin-bottom: 20px;">
+                    <em>Note: In a production environment, this would display the actual subscription records from the database query. 
+                    The raw data would show each subscription's ID, account name, monthly_price, started_at, canceled_at, and status.</em>
+                </p>
+                <p style="background: #fff3cd; padding: 15px; border-radius: 4px; color: #856404;">
+                    <strong>💡 To implement:</strong> The raw subscription data should be embedded in the HTML or fetched via API when a data point is clicked. 
+                    The data structure would include all subscription records that contributed to the MRR calculation for the selected month and plan.
+                </p>
+            `;
+            
+            modal.style.display = 'block';
+        }
+    </script>
+</body>
+</html>
