@@ -1,0 +1,295 @@
+---
+description: Generate branded HTML analysis reports for Nimrod Fisher | AI Analytics Hub
+globs:
+  - "**/*analysis*.py"
+  - "**/*report*.py"
+  - "**/*eda*.py"
+alwaysApply: false
+---
+
+# HTML Report Generation Rule
+
+When generating HTML reports at the end of an analysis, apply this branded template.
+
+## Branding
+- **Author**: Nimrod Fisher | AI Analytics Hub
+- **Website**: ai-analytics-hub.com
+- **Footer**: "The Analytics Team"
+- **Profile Image**: `.cursor/assets/profile.jpg` (embed as base64 in reports)
+
+## Color Palette
+```
+Primary:        #2563EB (headers, links)
+Primary Dark:   #1E40AF (hover states)
+Secondary:      #0EA5E9 (accents, charts)
+Background:     #F8FAFC (page bg)
+Surface:        #FFFFFF (cards)
+Text:           #1E293B (main text)
+Text Secondary: #64748B (captions)
+Border:         #E2E8F0 (dividers)
+Success:        #10B981 (positive metrics)
+Warning:        #F59E0B (caution)
+Error:          #EF4444 (negative metrics)
+```
+
+## Chart Colors (in order)
+1. `#2563EB` 2. `#0EA5E9` 3. `#10B981` 4. `#F59E0B` 5. `#8B5CF6` 6. `#EC4899` 7. `#64748B`
+
+## Required Section Structure
+1. **Header** - Profile image (top-left), title, date, author name
+2. **Executive Summary** - Blue gradient box with key findings
+3. **Methodology** - Data sources, approach, limitations
+4. **Findings** - Analysis with visualizations
+5. **Recommendations** - Green gradient box with actionable insights
+6. **Footer** - "The Analytics Team • ai-analytics-hub.com"
+
+## Typography
+- Google Fonts: Inter (headings 600-700, body 400), JetBrains Mono (code)
+- Load inline for self-contained HTML
+
+## Key Components
+
+### Metric Cards
+```html
+<div class="metrics-grid">
+    <div class="metric-card positive"><div class="value">+24%</div><div class="label">Growth</div></div>
+    <div class="metric-card negative"><div class="value">-8%</div><div class="label">Churn</div></div>
+</div>
+```
+
+### Chart Container
+```html
+<div class="chart-container">
+    <div class="chart-title">Title</div>
+    <div id="chart1" class="chart"></div>
+</div>
+```
+
+### Callouts
+```html
+<div class="callout info">Note</div>
+<div class="callout warning">Caution</div>
+<div class="callout success">Positive</div>
+```
+
+## Technical Requirements
+- Self-contained HTML (all CSS inline)
+- Support ECharts and Plotly via CDN
+- Print-friendly with proper page breaks
+- Profile image as base64 data URI
+
+## Full CSS Template
+
+```css
+:root {
+    --color-primary: #2563EB;
+    --color-primary-dark: #1E40AF;
+    --color-secondary: #0EA5E9;
+    --color-bg: #F8FAFC;
+    --color-surface: #FFFFFF;
+    --color-text: #1E293B;
+    --color-text-secondary: #64748B;
+    --color-border: #E2E8F0;
+    --color-success: #10B981;
+    --color-warning: #F59E0B;
+    --color-error: #EF4444;
+    --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+}
+
+body {
+    font-family: var(--font-sans);
+    font-size: 16px;
+    line-height: 1.6;
+    color: var(--color-text);
+    background: var(--color-bg);
+    padding: 2rem;
+}
+
+.report-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    background: var(--color-surface);
+    border-radius: 12px;
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+}
+
+.report-header {
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+    color: white;
+    padding: 2rem 2.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.report-header img.profile {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    border: 3px solid rgba(255,255,255,0.3);
+    object-fit: cover;
+}
+
+.section-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--color-primary);
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--color-border);
+}
+
+.executive-summary {
+    background: linear-gradient(135deg, #EFF6FF 0%, #F0F9FF 100%);
+    border-left: 4px solid var(--color-primary);
+    padding: 1.5rem;
+    border-radius: 0 8px 8px 0;
+}
+
+.recommendations {
+    background: linear-gradient(135deg, #ECFDF5 0%, #F0FDFA 100%);
+    border-left: 4px solid var(--color-success);
+    padding: 1.5rem;
+    border-radius: 0 8px 8px 0;
+}
+
+.metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin: 1.5rem 0;
+}
+
+.metric-card {
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    padding: 1.25rem;
+    text-align: center;
+}
+
+.metric-card .value { font-size: 2rem; font-weight: 700; color: var(--color-primary); }
+.metric-card.positive .value { color: var(--color-success); }
+.metric-card.negative .value { color: var(--color-error); }
+
+.chart-container {
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin: 1.5rem 0;
+}
+
+.callout { padding: 1rem 1.25rem; border-radius: 8px; margin: 1rem 0; }
+.callout.info { background: #EFF6FF; border-left: 4px solid var(--color-primary); }
+.callout.warning { background: #FFFBEB; border-left: 4px solid var(--color-warning); }
+.callout.success { background: #ECFDF5; border-left: 4px solid var(--color-success); }
+
+.report-footer {
+    background: var(--color-bg);
+    padding: 1.5rem 2.5rem;
+    text-align: center;
+    border-top: 1px solid var(--color-border);
+    font-size: 0.875rem;
+    color: var(--color-text-secondary);
+}
+
+@media print {
+    body { background: white; padding: 0; }
+    .report-container { box-shadow: none; }
+    .section { page-break-inside: avoid; }
+}
+```
+
+## HTML Report Generation Workflow
+
+### Overview
+
+**ALWAYS use a Python script** that handles the entire report generation in one step. This avoids file size limits, command issues, and intermediate file management.
+
+### Profile Image Location
+
+**Location**: `.cursor/assets/profile.jpg` (base64 embed required)
+
+### Recommended Approach
+
+1. **Create a generation script** in the analysis folder (e.g., `generate_html_report.py`) that:
+   - Reads and base64-encodes the profile image from `.cursor/assets/profile.jpg`
+   - Loads or embeds the analysis data (from SQL results or data structures)
+   - Generates the complete HTML with all branding, CSS, and charts
+   - Writes the HTML file directly to the analysis folder
+
+2. **Execute the script** using the correct Python command:
+   - Windows: `py generate_html_report.py`
+   - Unix/Mac: `python3 generate_html_report.py`
+
+3. **Clean up** the generation script after successful completion (optional)
+
+4. **Save the report** in the analysis folder:
+   - Path: `analyses/{YYYY-MM-DD}_{analysis_slug}/report.html`
+   - Example: `analyses/2024-12-15_mrr-by-plan-analysis/report.html`
+
+### Why This Approach Works
+
+✅ **Avoids read_file limits**: Base64 strings are 200K+ characters, exceeding tool limits
+✅ **Cross-platform**: `py` command works reliably on Windows, `python3` on Unix
+✅ **Single execution**: No intermediate files or multi-step processes
+✅ **Atomic operation**: Either succeeds completely or fails cleanly
+✅ **Organized output**: Report stays with related analysis artifacts
+
+### Anti-Patterns to Avoid
+
+❌ **DON'T** use `python -c` for complex operations (fails on Windows PowerShell)
+❌ **DON'T** try to read large base64 strings with read_file tool (exceeds limits)
+❌ **DON'T** save base64 to intermediate files (unnecessary complexity)
+❌ **DON'T** use shell redirection for large outputs (unreliable)
+❌ **DON'T** save reports in workspace root (keep organized in analysis folders)
+
+### Script Template Structure
+
+```python
+import base64
+from pathlib import Path
+from datetime import datetime
+
+# 1. Read and encode profile image
+profile_path = Path(".cursor/assets/profile.jpg")
+with open(profile_path, "rb") as f:
+    profile_b64 = f"data:image/jpeg;base64,{base64.b64encode(f.read()).decode()}"
+
+# 2. Prepare your analysis data
+# (from SQL query results, data structures, etc.)
+
+# 3. Generate complete HTML content
+html_content = f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Include all CSS inline -->
+</head>
+<body>
+    <div class="report-header">
+        <img src="{profile_b64}" alt="Profile" class="profile">
+        <!-- Rest of header -->
+    </div>
+    <!-- Rest of report -->
+</body>
+</html>
+"""
+
+# 4. Write to analysis folder (NOT workspace root)
+output_path = Path("analyses/YYYY-MM-DD_analysis-name/report.html")
+output_path.parent.mkdir(parents=True, exist_ok=True)
+with open(output_path, "w", encoding="utf-8") as f:
+    f.write(html_content)
+
+print(f"HTML report generated: {output_path.absolute()}")
+```
+
+### Complete Example
+
+See `.cursor/examples/generate_html_report_template.py` for a full working example that includes:
+- Profile image embedding
+- Data formatting for charts
+- Complete HTML structure with branding
+- ECharts integration
+- Proper file path handling
