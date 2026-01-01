@@ -1,0 +1,376 @@
+---
+description: Transform any static HTML report into an interactive single-file dashboard
+globs:
+  - "**/*.html"
+  - "analyses/**/report.html"
+alwaysApply: false
+---
+
+# HTML Report to Interactive Dashboard Transformation Protocol
+
+## Context
+Apply when user asks to "transform," "upgrade," "make interactive," or "dashboardify" a static HTML report.
+
+**Goal:** Produce a **single-file, portable, interactive dashboard** that works offline without a backend.
+
+---
+
+## Library Stack (CDN Only)
+
+Add these libraries via CDN in the `<head>` section:
+
+
+html
+<!-- Bootstrap 5 (with namespace to avoid conflicts) -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<!-- DataTables.net (with jQuery) -->
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<link href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+<!-- Plotly.js (for new interactive charts if needed) -->
+<script src="https://cdn.plot.ly/plotly-2.26.0.min.js"></script>
+<!-- Bootstrap JS (for dropdowns, modals if needed) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+
+
+**Order matters:** jQuery must load before DataTables.
+
+---
+
+## Transformation Workflow
+
+### Phase 1: Style Preservation
+
+**Goal:** Add Bootstrap without breaking existing styles.
+
+#### 1.1 Detect Existing CSS
+Scan the `<head>` and inline `<style>` blocks for:
+- Custom CSS variables (`:root { --color-* }`)
+- Custom class definitions (`.report-header`, `.metric-card`, etc.)
+- Inline styles on elements
+
+#### 1.2 Add Bootstrap with Namespace (Optional)
+If existing CSS is extensive and uses generic class names:
+
+<style>
+    /* Wrap Bootstrap in a namespace to avoid conflicts */
+    .bs-scope {
+        /* Bootstrap styles only apply inside this class */
+    }
+    
+    /* OR: Override Bootstrap to match existing colors */
+    :root {
+        --bs-primary: #2563EB; /* Match existing primary */
+        --bs-success: #10B981; /* Match existing success */
+    }
+</style>
+
+
+1.3 Preserve Original Layout
+DO NOT delete existing CSS
+DO NOT remove existing classes
+Add Bootstrap classes alongside existing ones: class="existing-class bs-scope"
+
+
+Phase 2: Data Extraction
+Goal: Extract all table data and static chart data to JavaScript.
+2.1 Extract All Tables
+Scan the HTML for ALL <table> elements:
+
+
+<script>
+// Data store: one object per table
+window.dashboardData = {
+    tables: [],
+    charts: []
+};
+
+// Extract table 1 (example: validation results)
+window.dashboardData.tables.push({
+    id: 'validationTable',
+    name: 'Validation Results',
+    data: [
+        { check_type: 'Join Validation', result: 'PASS', details: '100% integrity' },
+        { check_type: 'Time-Series', result: 'PASS', details: 'Complete 12 months' }
+        // ... parsed from HTML table rows
+    ],
+    columns: ['check_type', 'result', 'details']
+});
+
+// Extract table 2 (example: MRR by industry)
+window.dashboardData.tables.push({
+    id: 'mrrTable',
+    name: 'MRR by Industry',
+    data: [
+        { industry: 'FinTech', starting_mrr: 336, ending_mrr: 842, growth_pct: 150.6 },
+        { industry: 'SaaS', starting_mrr: 643, ending_mrr: 1477, growth_pct: 129.7 }
+        // ... parsed from HTML
+    ],
+    columns: ['industry', 'starting_mrr', 'ending_mrr', 'growth_pct']
+});
+</script>
+
+
+2.2 Parse Tables to JSON
+Parsing logic:
+
+function parseTableToJSON(tableElement, tableId) {
+    const headers = Array.from(tableElement.querySelectorAll('th'))
+        .map(th => th.textContent.trim().toLowerCase().replace(/\s+/g, '_'));
+    
+    const rows = Array.from(tableElement.querySelectorAll('tbody tr'));
+    
+    const data = rows.map(row => {
+        const cells = Array.from(row.querySelectorAll('td'));
+        const rowData = {};
+        
+        headers.forEach((header, index) => {
+            let value = cells[index]?.textContent.trim() || '';
+            
+            // Try to parse as number
+            const numValue = parseFloat(value.replace(/[^0-9.-]/g, ''));
+            rowData[header] = isNaN(numValue) ? value : numValue;
+        });
+        
+        return rowData;
+    });
+    
+    return {
+        id: tableId,
+        name: tableElement.previousElementSibling?.textContent || `Table ${tableId}`,
+        data: data,
+        columns: headers
+    };
+}
+
+// Auto-parse all tables
+document.querySelectorAll('table').forEach((table, index) => {
+    const tableData = parseTableToJSON(table, `table${index + 1}`);
+    window.dashboardData.tables.push(tableData);
+});
+
+2.3 Extract Chart Data
+Detect existing chart libraries:
+// Check what's already loadedconst hasECharts = typeof echarts !== 'undefined';const hasPlotly = typeof Plotly !== 'undefined';const hasChartJS = typeof Chart !== 'undefined';console.log('Detected chart libraries:', { hasECharts, hasPlotly, hasChartJS });
+If charts exist, extract their data:
+
+// Example: Extract from ECharts instance
+if (hasECharts && typeof trendChart !== 'undefined') {
+    const chartOption = trendChart.getOption();
+    window.dashboardData.charts.push({
+        type: 'echarts',
+        id: 'trendChart',
+        instance: trendChart,
+        data: chartOption.series,
+        categories: chartOption.xAxis[0].data
+    });
+}
+
+// For static images (fallback), note them for potential recreation
+document.querySelectorAll('img[alt*="chart"], img[alt*="graph"]').forEach((img, index) => {
+    window.dashboardData.charts.push({
+        type: 'static',
+        id: `chart${index + 1}`,
+        element: img,
+        needsConversion: true
+    });
+});
+
+Phase 3: Component Replacement
+Goal: Replace static elements with interactive versions.
+3.1 Transform Tables
+For each table:
+
+// 1. Hide original table
+const originalTable = document.getElementById('originalTable');
+originalTable.style.display = 'none';
+originalTable.insertAdjacentHTML('beforebegin', '<!-- Original table hidden for reference -->');
+
+// 2. Create new interactive table container
+const container = document.createElement('div');
+container.innerHTML = `
+    <div class="table-responsive">
+        <table id="${tableData.id}_interactive" class="table table-striped table-hover">
+            <thead>
+                <tr>
+                    ${tableData.columns.map(col => `<th>${col.replace(/_/g, ' ')}</th>`).join('')}
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+`;
+originalTable.parentNode.insertBefore(container, originalTable);
+
+// 3. Initialize DataTable
+$(`#${tableData.id}_interactive`).DataTable({
+    data: tableData.data,
+    columns: tableData.columns.map(col => ({ data: col })),
+    pageLength: 10,
+    searching: true,
+    ordering: true,
+    responsive: true,
+    language: {
+        search: 'Filter:',
+        lengthMenu: 'Show _MENU_ rows'
+    }
+});
+
+
+
+3.3 Convert Static Chart Images (Only if Needed)
+Only for static <img> charts:
+
+
+window.dashboardData.charts.forEach(chart => {
+    if (chart.type === 'static' && chart.needsConversion) {
+        // Create Plotly chart container
+        const plotDiv = document.createElement('div');
+        plotDiv.id = `${chart.id}_plotly`;
+        plotDiv.style.width = '100%';
+        plotDiv.style.height = '400px';
+        
+        chart.element.parentNode.replaceChild(plotDiv, chart.element);
+        
+        // Note: Actual chart recreation requires data from tables or manual specification
+        console.warn(`Static chart ${chart.id} needs manual data mapping for Plotly`);
+    }
+});
+
+
+4.2 Populate Filter Options
+
+
+// Auto-detect filterable columns (categorical data)
+function detectFilterableColumns() {
+    const filterOptions = new Set();
+    
+    window.dashboardData.tables.forEach(table => {
+        table.data.forEach(row => {
+            Object.entries(row).forEach(([key, value]) => {
+                if (typeof value === 'string' && value.length < 50) {
+                    filterOptions.add(value);
+                }
+            });
+        });
+    });
+    
+    return Array.from(filterOptions).sort();
+}
+
+// Populate dropdown
+const filterSelect = document.getElementById('globalFilter');
+detectFilterableColumns().forEach(option => {
+    const opt = document.createElement('option');
+    opt.value = option;
+    opt.textContent = option;
+    filterSelect.appendChild(opt);
+});
+
+
+4.3 Wire Filter Logic
+
+
+function updateDashboard(filterValue) {
+    // Filter all DataTables
+    $.fn.dataTable.tables({ api: true }).search(filterValue === 'all' ? '' : filterValue).draw();
+    
+    // Update charts if they have update methods
+    window.dashboardData.charts.forEach(chart => {
+        if (chart.type === 'echarts' && chart.instance) {
+            // ECharts: filter series data
+            const filteredData = filterChartData(chart.data, filterValue);
+            chart.instance.setOption({ series: filteredData });
+        }
+    });
+}
+
+document.getElementById('globalFilter').addEventListener('change', (e) => {
+    updateDashboard(e.target.value);
+});
+
+document.getElementById('resetAll').addEventListener('click', () => {
+    document.getElementById('globalFilter').value = 'all';
+    updateDashboard('all');
+});
+
+Code Constraints
+✅ MUST DO
+Keep everything in a single HTML file
+Data embedded in <script> tags (no external .json or .csv)
+Preserve ALL original CSS (don't delete)
+Detect and keep existing interactive charts (ECharts, Plotly, etc.)
+Parse ALL <table> elements
+Create separate data objects per table
+Handle errors gracefully (log to console, don't break page)
+❌ NEVER DO
+Use fetch() or AJAX calls
+Create external data files
+Delete existing CSS/styles
+Replace existing interactive charts unnecessarily
+Break original page layout
+Assume specific table/chart structures (be generic)
+Error Handling
+try {    // Attempt transformation    window.dashboardData.tables.forEach(transformTable);} catch (error) {    console.error('Table transformation failed:', error);    alert('Some tables could not be made interactive. Original tables preserved.');}
+Example Trigger Prompts
+When user says:
+"Make this HTML interactive"
+"Transform this report into a dashboard"
+"Add DataTables to all tables"
+"Make the charts and tables interactive"
+"Upgrade this static report"
+Then: Run this transformation protocol.
+Validation Checklist
+After transformation:
+[ ] Original HTML still visible and styled correctly
+[ ] All tables now have search/sort/pagination
+[ ] Existing interactive charts still work
+[ ] Global filter affects all tables
+[ ] Reset button restores original state
+[ ] Single file (no broken external links)
+[ ] Works offline (test by opening file:// URL)
+[ ] No console errors
+[ ] File size reasonable (< 2MB)
+
+Example Output Structure
+
+<!DOCTYPE html>
+<html>
+<head>
+    <!-- Original CSS preserved -->
+    <style>/* existing styles */</style>
+    
+    <!-- New: Bootstrap + DataTables -->
+    <link href="bootstrap.min.css" ...>
+    <script src="jquery.min.js"></script>
+    <script src="dataTables.min.js"></script>
+</head>
+<body>
+    <!-- New: Control Panel -->
+    <div id="dashboardControls">...</div>
+    
+    <!-- Original content preserved -->
+    <div class="original-header">...</div>
+    
+    <!-- Tables: Original hidden, interactive version shown -->
+    <table id="original_table" style="display:none">...</table>
+    <table id="interactive_table" class="table">...</table>
+    
+    <!-- Charts: Existing ones kept as-is -->
+    <div id="existingChart"><!-- ECharts still here --></div>
+    
+    <!-- New: Embedded data -->
+    <script>
+        window.dashboardData = { tables: [...], charts: [...] };
+        
+        // Transformation logic
+        $(document).ready(function() {
+            $('#interactive_table').DataTable({ ... });
+        });
+    </script>
+</body>
+</html>
+
+

@@ -1,0 +1,62 @@
+---
+description: Snowflake Query Optimization Best Practices and Standards
+globs: ["**/*.sql", "**/queries/*.sql", "**/analysis/*.py"]
+alwaysApply: false
+---
+
+# Snowflake Query Optimization Best Practices
+
+This guide outlines mandatory and recommended practices for optimizing queries in Snowflake, based on official documentation and industry standards.
+
+## 1. Data Storage & Pruning
+
+### Clustering & Micro-partitions
+- **Pruning**: Snowflake automatically partitions data into micro-partitions. Ensure queries use filter conditions on clustered columns to enable "pruning" (skipping irrelevant data).
+- **Clustering Keys**: For tables larger than 1TB, define clustering keys on columns frequently used in `WHERE` clauses or `JOIN` conditions.
+- **Search Optimization Service**: Use for point-lookup queries on large tables where traditional clustering is insufficient.
+
+## 2. Query Design Standards
+
+### Selectivity & Filtering
+- **Avoid `SELECT *`**: Always specify only the columns you need. This reduces I/O and memory usage.
+- **Early Filtering**: Apply `WHERE` filters as early as possible (e.g., inside CTEs) to reduce the volume of data flowing through the query.
+- **Limit Results**: Use `LIMIT` or `TOP N` during exploration to avoid processing massive result sets.
+
+### Joins & Aggregations
+- **Join Order**: Join the largest table first (left side) and smaller tables later, or use `JOIN` hints if necessary.
+- **Filter Before Join**: Filter tables *before* joining them to reduce the join space.
+- **Group By Optimization**: When using `GROUP BY`, use the numeric position (e.g., `GROUP BY 1, 2`) or column aliases for clarity, but ensure the underlying columns are selective.
+
+## 3. Compute & Resource Management
+
+### Warehouse Sizing
+- **Right-sizing**: Use a warehouse size appropriate for the workload. If a query is spilling to disk (check Query Profile), increase the warehouse size.
+- **Query Acceleration Service (QAS)**: Enable QAS for warehouses handling complex, data-intensive queries to offload processing.
+- **Scaling Out**: Use Multi-cluster Warehouses for high concurrency rather than increasing the size of a single warehouse.
+
+## 4. Performance Monitoring
+
+### Query Profile Analysis
+- **Check for Spilling**: "Local Disk Spilling" or "Remote Disk Spilling" indicates the warehouse is too small for the data being processed.
+- **Exploding Joins**: Look for "Join" nodes where the output row count is significantly higher than the input (fan-out).
+- **Union All vs Union**: Prefer `UNION ALL` over `UNION` unless you explicitly need to remove duplicates, as `UNION` requires a costly distinct operation.
+
+## 5. Advanced Features
+
+### Dynamic Tables & Materialization
+- **Dynamic Tables**: Use for incremental data transformations where target freshness is defined.
+- **Materialized Views**: Use for queries that are frequent, complex, and involve a small subset of the total data.
+
+### Semi-structured Data
+- **FLATTEN Optimization**: When working with `VARIANT` data, flatten only the necessary arrays and filter as early as possible within the `LATERAL FLATTEN` call.
+
+## 6. Implementation Checklist
+
+- [ ] Does the query filter on clustered/partitioned columns?
+- [ ] Have I avoided `SELECT *`?
+- [ ] Are filters applied before joins and aggregations?
+- [ ] Does the Query Profile show significant disk spilling?
+- [ ] Can `UNION ALL` be used instead of `UNION`?
+
+---
+*Note: Refer to [Snowflake Performance Documentation](https://docs.snowflake.com/en/user-guide/performance-query-warehouse-size) for deeper dives into specific optimization techniques.*

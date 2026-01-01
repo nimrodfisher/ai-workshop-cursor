@@ -1,0 +1,66 @@
+---
+description: Technical standards for PDF summary reports using ReportLab
+alwaysApply: false
+---
+# PDF Report Generation Standards
+
+When generating PDF summary reports (report_summary.pdf) for stakeholders, follow these technical and branding standards.
+
+## Core Requirements
+
+1. **Library**: ALWAYS use `reportlab` for PDF generation.
+2. **Branding**: Consistency with HTML reports is mandatory (colors, fonts, header/footer).
+3. **Context-Aware**: Content must be dynamically generated based on the specific analysis findings.
+
+## Technical Implementation (ReportLab)
+
+### 1. Table Cell Handling (CRITICAL)
+ReportLab's `Table` component does not natively support multi-line text or inline styling (like `<b>` tags) in raw string format. 
+
+**MANDATORY**: Every cell content MUST be wrapped in a `Paragraph` flowable.
+
+```python
+from reportlab.platypus import Paragraph
+from reportlab.lib.styles import getSampleStyleSheet
+
+styles = getSampleStyleSheet()
+body_style = styles['BodyText']
+
+# Helper function for table cells
+def p_wrap(text, style=body_style):
+    return Paragraph(text, style)
+
+# Usage in table data
+data = [
+    [p_wrap('<b>Metric</b>'), p_wrap('<b>Value</b>')],
+    [p_wrap('ARR Growth'), p_wrap('<b>+152%</b>\n(MoM)')], # \n and tags work!
+]
+```
+
+### 2. Page Layout
+- **Orientation**: Portrait, Letter or A4 size.
+- **Margins**: 0.75 - 1.0 inch on all sides.
+- **Page Breaks**: Use `PageBreak()` between major sections (Executive Summary, Findings, Recommendations).
+
+### 3. Styling & Colors
+Use the official hub palette:
+- **Primary**: `#2563EB` (Titles, Table Headers)
+- **Secondary**: `#0EA5E9` (Subtitles, Accents)
+- **Success**: `#10B981` (Positive Impact)
+- **Error**: `#EF4444` (Negative Impact/Warnings)
+
+## Mandatory Section Sequence
+
+1.  **Cover/Header**: Analysis Title, Date, Author (Nimrod Fisher | AI Analytics Hub).
+2.  **Executive Summary**: 1-paragraph high-level narrative.
+3.  **Key Metrics Table**: 4-6 critical metrics with color-coded changes.
+4.  **Key Findings**: Detailed bullet points with evidence.
+5.  **Recommendations Table**: Actionable steps with estimated impact.
+6.  **Methodology**: Brief technical explanation.
+7.  **Footer**: "The Analytics Team • ai-analytics-hub.com"
+
+## Common Pitfalls to Avoid
+
+- ❌ Passing raw strings to `Table` (causes text truncation and breaks bolding).
+- ❌ Using generic boilerplate (ensure findings are specific to the current data).
+- ❌ Inconsistent naming (ensure metric names match the interactive dashboard).

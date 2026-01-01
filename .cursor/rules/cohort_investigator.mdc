@@ -1,0 +1,187 @@
+---
+alwaysApply: false
+---
+
+---
+description: Cohort investigation for metric changes across segments
+globs:
+  - "**/*analysis*.py"
+  - "**/*analysis*.md"
+alwaysApply: false
+---
+
+# Cohort Investigator Rule
+
+## Prerequisites
+
+**BEFORE using Cohort Investigator, ensure schema.yml is loaded from GitHub:**
+- Use GitHub MCP tool: `get_file_contents` 
+- Repository: nimrodfisher/workshop-queries-repo
+- File: schema.yml
+- This provides metric definitions, table relationships, and business context
+
+## When to Use This Tool
+
+Use the Cohort Investigator **ONLY** when the user's question includes:
+
+### Trigger Patterns (Must Match One):
+
+1. **Explicit Comparison Questions**
+   - "Which segment/cohort/group contributed to [metric] change?"
+   - "Why did [metric] change between [period A] and [period B]?"
+   - "What drove the increase/decrease in [metric]?"
+   - "Break down [metric] change by [dimension]"
+
+2. **Decomposition Keywords**
+   - "decompose", "break down", "drill down", "investigate"
+   - "who/what drove", "which group/segment caused"
+   - "contribution", "attribution", "impact by segment"
+
+3. **Change Analysis with Segmentation**
+   - User mentions a metric change AND asks about segments/cohorts
+   - Example: "MRR dropped 10%, which plans were affected?"
+
+### DO NOT Use When:
+
+1. **Simple Trend Questions**
+   - "Show me MRR over time" → Use regular time-series analysis
+   - "What's our churn rate?" → Use standard metric calculation
+
+2. **Single-Segment Questions**
+   - "How is Pro plan performing?" → Regular segment analysis
+   - Not comparing across segments
+
+3. **Exploratory Questions**
+   - "What's happening with our metrics?" → Start with EDA
+   - Let EDA identify if decomposition is needed
+
+4. **Forecasting Questions**
+   - "What will MRR be next month?" → Use forecasting, not decomposition
+
+## Decision Logic
+User Question
+↓
+Does it mention a metric change? → NO → Regular Analysis
+↓ YES
+Does it ask about segments/cohorts? → NO → Time-series Analysis
+↓ YES
+Does it ask WHY or WHO contributed? → YES → COHORT INVESTIGATOR
+↓ NO
+Does it compare periods explicitly? → YES → COHORT INVESTIGATOR
+↓ NO
+Regular Segment Analysis
+
+
+## Required Inputs
+
+Before invoking Cohort Investigator, ensure you have:
+
+1. **Schema Context** (MANDATORY): schema.yml loaded from GitHub
+   - Check `common_metrics` for metric definitions (MRR, Churn, ARPU, etc.)
+   - Check `models` for available segment dimensions
+   - Check `relationships` for proper joins
+
+2. **Base Metric**: What changed (e.g., MRR, churn_rate, ARPU)
+   - Reference schema.yml `common_metrics` for standard calculations
+
+3. **Time Periods**: Two periods to compare (e.g., "Jan vs Dec", "Q1 vs Q2")
+
+4. **Segment Dimension**: At least one dimension (e.g., plan, industry, cohort)
+   - Available dimensions are in schema.yml `models` sections
+
+If missing, ask user to clarify before proceeding.
+
+## Execution Pattern
+
+### Phase 1: Validate Prerequisites
+
+Check if cohort analysis is appropriate
+prerequisites = {
+"metric_identified": check_metric_in_question(),
+"periods_specified": check_periods_in_question(),
+"segment_dimension": check_segment_dimension(),
+"change_mentioned": check_change_keywords()
+}
+if all(prerequisites.values()):
+proceed_with_cohort_investigator()
+else:
+use_regular_analysis()
+
+
+### Phase 2: Data Validation (Mandatory)
+Run standard validation checks before decomposition:
+- Segment Coverage: Do segments cover 100% of data?
+- Sample Size: Each segment has n ≥ 30?
+- Time Period Overlap: Periods are comparable?
+
+### Phase 3: Decomposition Analysis
+Execute the cohort investigation query and analysis.
+
+### Phase 4: Report Generation
+Use HTML report template with decomposition visualizations.
+
+## Example Trigger Scenarios
+
+### ✅ SHOULD Trigger Cohort Investigator
+
+1. **User:** "MRR grew 41% - which plans contributed most?"
+   - ✓ Metric: MRR
+   - ✓ Change: grew 41%
+   - ✓ Segmentation: plans
+   - ✓ Attribution: "which contributed"
+
+2. **User:** "Break down the churn rate increase by customer segment"
+   - ✓ Metric: churn_rate
+   - ✓ Change: increase
+   - ✓ Segmentation: customer segment
+   - ✓ Decomposition: "break down"
+
+3. **User:** "Why did revenue drop in Q2 compared to Q1?"
+   - ✓ Metric: revenue (implied)
+   - ✓ Change: drop
+   - ✓ Periods: Q1 vs Q2
+   - ✓ Investigation: "why"
+   - → Follow-up: Ask "Which dimensions should I segment by?"
+
+### ❌ Should NOT Trigger
+
+1. **User:** "Show me MRR trend for the last 12 months"
+   - ✗ No comparison between specific periods
+   - ✗ No attribution question
+   - → Use: Regular time-series analysis
+
+2. **User:** "How is the Pro plan performing?"
+   - ✗ Single segment view
+   - ✗ No comparison across segments
+   - → Use: Single segment analysis
+
+3. **User:** "What are our key metrics this month?"
+   - ✗ General overview
+   - ✗ No specific change investigation
+   - → Use: Dashboard/EDA approach
+
+## Integration with Existing Framework
+
+### Update `agent_instructions.md`
+
+Add a new decision point after Phase 2 (EDA):
+
+### STEP 3.5: Determine Analysis Type
+
+After EDA, determine if user question requires:
+
+A. **Regular Analysis** (Phase 3)
+   - Descriptive statistics
+   - Trend analysis
+   - Single segment view
+
+B. **Cohort Investigation** (Phase 3-CI)
+   - Metric change decomposition
+   - Segment contribution analysis
+   - Attribution analysis
+   
+Decision Logic:
+- Check trigger patterns in cohort_investigator.mdc
+- If matched → Proceed with cohort investigation
+- If not matched → Continue with regular Phase 3
+

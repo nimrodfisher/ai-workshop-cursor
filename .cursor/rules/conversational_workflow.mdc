@@ -1,0 +1,284 @@
+---
+alwaysApply: true
+---
+
+# Conversational Analysis Mode
+
+## Overview
+
+By default, the analysis workflow operates in conversational mode, pausing at key checkpoints to explain progress and request user approval before proceeding.
+
+---
+
+## Default Behavior
+
+The agent will:
+- Pause at defined checkpoints
+- Provide concise summary of completed work (2-3 bullet points)
+- Share key results (numbers/findings)
+- Explain next steps clearly
+- Request explicit permission to proceed
+
+---
+
+## Opt-Out Mechanism
+
+Users can bypass checkpoints with any of these phrases:
+- "run the full analysis"
+- "continue without stopping"
+- "skip confirmations"
+- "don't pause"
+- "run everything"
+
+When detected, set internal flag `SKIP_CHECKPOINTS = True` and proceed without pausing.
+
+---
+
+## Checkpoint Template Format
+
+At each checkpoint, use this structure:
+
+```
+---
+CHECKPOINT [N]: [Title]
+---
+What I just did:
+- [Action 1]
+- [Action 2]
+- [Action 3]
+
+Key results:
+- [Finding 1]: [specific data]
+- [Finding 2]: [specific data]
+- [Quality/Status indicator]
+
+Next steps:
+- [What comes next 1]
+- [What comes next 2]
+- [What comes next 3]
+
+Should I proceed with [next phase description]?
+```
+
+---
+
+## Defined Checkpoints
+
+### Checkpoint 1: After Sanity Checks & EDA Completion
+
+**Trigger:** Immediately after completing both Phase 1 (Sanity Checks) and Phase 2 (EDA)
+
+**⚠️ CRITICAL:** This checkpoint happens BEFORE any main analysis queries are written
+
+**Purpose:** Ensure data quality is validated and understood before writing analysis queries
+
+**Template:**
+```
+---
+CHECKPOINT 1: Validation & EDA Complete - Ready for Analysis
+---
+What I just did:
+- Completed sanity checks on [table names]: [X passed, Y warnings, Z failures]
+- Completed EDA on [table names]: [key distributions, patterns found]
+- Validated data quality: [overall quality score/assessment]
+
+Key findings from validation:
+- [Finding 1 - e.g., "monthly_price ranges from $10-$500, no nulls"]
+- [Finding 2 - e.g., "Date range: June 2024 to Dec 2025, complete"]
+- [Finding 3 - e.g., "3 plan tiers: Enterprise (30%), Free (35%), Pro (35%)"]
+
+Data quality: [READY / NEEDS ATTENTION]
+
+Next steps:
+- Write and execute main analysis queries to answer business questions
+- Apply insights from EDA to guide query construction
+- Generate findings and synthesize results
+
+Should I proceed with writing the main analysis queries?
+```
+
+**User Response Options:**
+- "Yes" / "Proceed" / "Continue" → Continue to Phase 3 (Main Analysis)
+- "No" / "Stop" / "Wait" → Pause analysis, await further instructions
+- "Skip checkpoints" / "Run everything" → Set SKIP_CHECKPOINTS = True, continue without pausing
+
+---
+
+### Checkpoint 2: After Main Analysis Query Execution
+
+**Trigger:** After executing the first main analysis query (Phase 3)
+
+**Purpose:** Review initial results before continuing with additional analysis or synthesis
+
+**Template:**
+```
+---
+CHECKPOINT 2: Main Analysis Query Executed
+---
+What I just did:
+- Executed analysis query to answer: [business question]
+- Retrieved [N] rows covering [scope/period]
+- Applied validation checks to results
+
+Key results:
+- [Primary Metric]: [value/trend/finding]
+- [Secondary Metric]: [value/trend/finding]
+- [Notable Pattern]: [description]
+
+Next steps:
+- Execute additional queries if needed for complete analysis
+- Synthesize all findings into conclusions.md
+- Prepare for report generation
+
+Should I proceed with [additional analysis / synthesis / report generation]?
+```
+
+**User Response Options:**
+- "Yes" / "Continue" → Continue with next analysis step
+- "No" / "Stop" → Pause analysis, await further instructions
+- "Skip checkpoints" → Set SKIP_CHECKPOINTS = True, continue
+
+---
+
+### Checkpoint 3: Before Generating Deliverables
+
+**Trigger:** After all analysis and synthesis is complete, immediately before report generation
+
+**Purpose:** Confirm readiness and manage expectations about generation time
+
+**Template:**
+```
+---
+CHECKPOINT 3: Ready to Generate Reports
+---
+What I just did:
+- Synthesized all findings into conclusions/conclusions.md
+- Documented complete analysis flow in analysis_flow.md
+- Prepared all data and visualizations for embedding
+
+Reports to be generated:
+1. PDF Summary Report
+   - Executive presentation format (~8 pages)
+   - Includes: findings, recommendations, methodology
+   
+2. Interactive Dashboard (HTML)
+   - Filterable charts and tables with DataTables
+   - Client-side interactivity (no server needed)
+   
+3. Static HTML Report
+   - Web-shareable with embedded ECharts
+   - Professional branding and styling
+
+Estimated generation time: 2-3 minutes
+
+Should I generate all three deliverables now?
+```
+
+**User Response Options:**
+- "Yes" / "Generate" / "All of them" → Generate all three deliverables
+- "Just PDF" / "Only the PDF" → Generate PDF only
+- "No" / "Stop" → Pause before generation
+
+---
+
+## Checkpoint Behavior Rules
+
+### When to Skip Checkpoints
+
+1. **User explicitly requested non-stop execution** at the beginning
+2. **User says "skip checkpoints"** at any checkpoint
+3. **Mid-analysis opt-out** - user says "continue without stopping" at any checkpoint
+
+Once `SKIP_CHECKPOINTS = True` is set, it remains active for the rest of the analysis.
+
+### When to Pause
+
+- **ALWAYS pause** if NOT `SKIP_CHECKPOINTS`
+- **WAIT for user response** before proceeding
+- **Do NOT assume** user wants to continue
+- **Do NOT continue** if user says stop/wait/no
+
+### Response Handling
+
+**Affirmative responses (continue):**
+- "yes", "proceed", "continue", "go ahead", "ok", "sure", "yep", "yeah"
+- "do it", "let's go", "please proceed"
+
+**Negative responses (stop):**
+- "no", "stop", "wait", "hold on", "not yet", "pause"
+- "let me check", "let me review"
+
+**Skip checkpoint responses (set flag):**
+- "skip checkpoints", "skip confirmations", "run everything"
+- "continue without stopping", "don't pause again"
+- "run the rest", "finish it"
+
+---
+
+## Implementation Notes
+
+### Flag Management
+
+**Initialize at start of analysis:**
+```python
+# Check user's initial request
+if user_message matches ["run the full analysis", "skip confirmations", "don't stop"]:
+    SKIP_CHECKPOINTS = True
+else:
+    SKIP_CHECKPOINTS = False
+```
+
+**At each checkpoint:**
+```python
+if not SKIP_CHECKPOINTS:
+    # Present checkpoint
+    # Wait for user response
+    # Check response:
+    if response matches ["skip checkpoints", "run everything"]:
+        SKIP_CHECKPOINTS = True
+    elif response matches affirmative:
+        continue
+    elif response matches negative:
+        pause_analysis()
+else:
+    # Skip checkpoint, continue execution
+    pass
+```
+
+### Checkpoint Placement in Code Flow
+
+**Checkpoint 1 Location:**
+- In `AGENT_INSTRUCTIONS.md` → STEP 4: Phase 3 - Main Analysis
+- After first `framework.add_step()` or SQL execution
+- Before running validation checks
+
+**Checkpoint 2 Location:**
+- In `AGENT_INSTRUCTIONS.md` → STEP 3: Phase 2 - EDA
+- After `framework.run_eda()` completes
+- After all validation checks finish
+- Before synthesis/conclusions phase
+
+**Checkpoint 3 Location:**
+- In `AGENT_INSTRUCTIONS.md` → New STEP 4.5: Pre-Report Checkpoint
+- After conclusions.md is written
+- After analysis_flow.md is created
+- Before calling report generation functions
+
+---
+
+## Benefits of Conversational Mode
+
+1. **User Control:** Users can stop and adjust approach based on intermediate results
+2. **Early Issue Detection:** Catch data quality problems before spending time on full analysis
+3. **Transparency:** Users understand what's happening at each phase
+4. **Flexibility:** Can opt out at start or during analysis
+5. **Learning:** New users can see the analysis process step-by-step
+
+---
+
+## Backward Compatibility
+
+- Existing non-conversational analyses still work
+- Users can opt out immediately with "run the full analysis"
+- No breaking changes to validation or EDA rules
+- All existing rule files remain unchanged in functionality

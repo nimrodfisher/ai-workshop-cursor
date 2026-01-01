@@ -1,0 +1,371 @@
+---
+description: Create visual mind map for every analysis showing step-by-step flow
+globs:
+  - "analyses/**/*.md"
+alwaysApply: false
+---
+
+# Analysis Flow Visualization Rule
+
+## Purpose
+
+Every analysis MUST include a visual mind map (`analysis_flow.md`) that shows:
+- How the business question was approached
+- What steps were taken
+- Decision points and logic
+- Data sources and transformations
+- Validation checkpoints
+
+## When to Create
+
+Create `analysis_flow.md` **at the END of the analysis** after all queries, validation, and reports are complete.
+
+This ensures:
+1. Accurate documentation of what actually happened (not just what was planned)
+2. Complete picture including any pivots or changes during analysis
+3. True representation of decision-making process
+4. Reproducibility based on actual steps taken
+
+---
+
+## File Location
+
+**Path:** `analyses/{YYYY-MM-DD}_{analysis_slug}/analysis_flow.md`
+
+**Example:** `analyses/2024-12-17_mrr-by-plan-analysis/analysis_flow.md`
+
+---
+
+## Visual Format: Mermaid Diagrams
+
+Use Mermaid syntax for the mind map - it renders in GitHub, Cursor, and many markdown viewers.
+
+### Required Sections
+
+1. **Business Question** (top node)
+2. **Schema Loading** (always first step)
+3. **Data Sources** (what tables/data)
+4. **Analysis Approach** (methodology)
+5. **Validation Steps** (data quality checks)
+6. **Key Findings** (outcomes)
+
+---
+
+## Template Structure
+
+```markdown
+# Analysis Flow: {Analysis Name}
+
+**Business Question:** {The question being answered}  
+**Date:** {YYYY-MM-DD}  
+**Analyst:** {Name}
+
+---
+
+## Analysis Mind Map
+
+```mermaid
+graph TD
+    A[Business Question:<br/>{Question}] --> B[Step 0: Load Schema from GitHub]
+    B --> C{Schema Sections Used}
+    C -->|common_metrics| D[MRR Definition]
+    C -->|models| E[Tables Identified]
+    C -->|relationships| F[Join Patterns]
+    
+    D --> G[Step 1: Identify Data Sources]
+    E --> G
+    F --> G
+    
+    G --> H[Subscriptions Table]
+    G --> I[Accounts Table]
+    
+    H --> J[Step 2: Data Validation]
+    I --> J
+    
+    J --> K{Validation Checks}
+    K -->|Join Validation| L[100% Match<br/>No Orphans]
+    K -->|Time-Series| M[Complete 12 Months<br/>No Gaps]
+    K -->|Aggregation| N[Values Logical<br/>No Negatives]
+    
+    L --> O[Step 3: Build Query]
+    M --> O
+    N --> O
+    
+    O --> P[Query 01:<br/>MRR by Plan<br/>Last 12 Months]
+    
+    P --> Q[Step 4: Execute & Analyze]
+    
+    Q --> R{Key Findings}
+    R --> S[+41% Total Growth]
+    R --> T[Pro Plan +98%]
+    R --> U[Balanced Distribution]
+    
+    S --> V[Step 5: Generate Reports]
+    T --> V
+    U --> V
+    
+    V --> W[EDA Report]
+    V --> X[Conclusions Doc]
+    V --> Y[HTML Report]
+    
+    style A fill:#2563EB,color:#fff
+    style B fill:#10B981,color:#fff
+    style R fill:#F59E0B,color:#fff
+    style V fill:#8B5CF6,color:#fff
+\```
+
+---
+
+## Step-by-Step Breakdown
+
+### Step 0: Load Schema Context
+- **Action:** Loaded schema.yml from GitHub (nimrodfisher/workshop-queries-repo)
+- **Sections Used:**
+  - `common_metrics` → MRR definition
+  - `models` → subscriptions, accounts tables
+  - `relationships` → subscriptions.org_id → accounts.id
+  - `sql_style_guide` → Formatting rules
+
+### Step 1: Identify Data Sources
+- **Tables:** subscriptions, accounts
+- **Key Columns:**
+  - subscriptions: monthly_price, status, started_at, canceled_at
+  - accounts: plan (Free, Pro, Enterprise)
+- **Time Range:** Last 12 months (Jan 2025 - Dec 2025)
+
+### Step 2: Data Validation
+- **Join Validation:** ✓ 100% match, 0 orphans
+- **Time-Series:** ✓ Complete 12 months, no gaps
+- **Aggregation:** ✓ All values logical, no negatives
+- **Data Quality Score:** 5/5
+
+### Step 3: Build Query
+- **Query Type:** Time-series aggregation with segmentation
+- **Approach:** Generate month series, calculate MRR per plan per month
+- **Validation:** Month-over-month change tracking
+
+### Step 4: Execute & Analyze
+- **Results:** 36 rows (12 months × 3 plans)
+- **Key Metrics:**
+  - Total MRR: $6,596 → $9,322 (+41%)
+  - Pro Plan: $1,576 → $3,123 (+98%)
+  - Enterprise: $2,248 → $3,041 (+35%)
+
+### Step 5: Generate Reports
+- **EDA Report:** Comprehensive data quality assessment
+- **Conclusions:** Actionable recommendations
+- **HTML Report:** Visual dashboards with charts
+
+---
+
+## Decision Points
+
+### Why This Approach?
+- **Time-series analysis** needed to show trends over 12 months
+- **Segmentation by plan** required to compare plan performance
+- **MoM change tracking** to identify growth/decline patterns
+
+### Alternative Approaches Considered
+1. **Snapshot analysis** - Rejected: Doesn't show trends
+2. **Cohort analysis** - Not needed: Question is about overall plan performance
+3. **Year-over-year** - Not applicable: Only 12 months of data
+
+### Key Assumptions
+- Active subscriptions = revenue-generating
+- Monthly_price = recurring monthly value
+- Plan changes handled by subscription lifecycle (start/cancel dates)
+
+---
+
+## Validation Results Summary
+
+| Check Type | Result | Details |
+|------------|--------|---------|
+| Join Validation | ✓ PASS | 100% referential integrity |
+| Time-Series | ✓ PASS | Complete 12-month series |
+| Aggregation | ✓ PASS | All values logical |
+| Volatility | ✓ PASS | No extreme changes (>50%) |
+| **Overall** | ✓ PASS | Data quality: 5/5 |
+
+---
+
+## Output Artifacts
+
+1. **SQL Query:** `queries/01_mrr-by-plan-last-12-months.sql`
+2. **EDA Report:** `eda/eda_report.md`
+3. **Conclusions:** `conclusions/conclusions.md`
+4. **HTML Report:** `report.html`
+5. **This Flow:** `analysis_flow.md`
+```
+
+---
+
+## Customization Guidelines
+
+### For Different Analysis Types
+
+#### Simple Metric Calculation
+```mermaid
+graph LR
+    A[Question] --> B[Load Schema]
+    B --> C[Query]
+    C --> D[Result]
+```
+
+#### Cohort/Segment Comparison
+```mermaid
+graph TD
+    A[Question] --> B[Load Schema]
+    B --> C[Identify Segments]
+    C --> D[Base Period]
+    C --> E[Comparison Period]
+    D --> F[Decomposition]
+    E --> F
+    F --> G[Attribution]
+```
+
+#### Time-Series Analysis
+```mermaid
+graph TD
+    A[Question] --> B[Load Schema]
+    B --> C[Generate Time Series]
+    C --> D[Calculate Metrics]
+    D --> E[Trend Analysis]
+    E --> F[Insights]
+```
+
+### Color Coding Standards
+
+Use consistent colors for node types:
+
+```
+Blue (#2563EB) - Business Question/Start
+Green (#10B981) - Schema/Data Loading
+Orange (#F59E0B) - Key Findings/Decisions
+Purple (#8B5CF6) - Outputs/Reports
+Gray (#64748B) - Process Steps
+Red (#EF4444) - Warnings/Issues (if any)
+```
+
+### Mermaid Syntax:
+```
+style NodeID fill:#ColorCode,color:#TextColor
+```
+
+---
+
+## Integration with HTML Reports
+
+The analysis flow should also be included in the HTML report as an interactive diagram.
+
+### In HTML Report Generation Script:
+
+```html
+<div class="section">
+    <h2 class="section-title">Analysis Methodology</h2>
+    <div class="callout info">
+        <strong>Visual Flow:</strong> See <a href="./analysis_flow.md">analysis_flow.md</a> 
+        for detailed step-by-step breakdown.
+    </div>
+    
+    <div class="chart-container">
+        <div class="chart-title">Analysis Flow Diagram</div>
+        <div class="mermaid">
+            {Mermaid diagram code here}
+        </div>
+    </div>
+</div>
+
+<!-- Add Mermaid JS -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script>mermaid.initialize({startOnLoad:true});</script>
+```
+
+---
+
+## Benefits
+
+### ✅ Clarity
+- Stakeholders see exactly how analysis was conducted
+- No black box - full transparency
+
+### ✅ Reproducibility
+- Others can follow the same steps
+- Clear documentation of decision points
+
+### ✅ Education
+- Team learns from methodology
+- Best practices documented visually
+
+### ✅ Communication
+- Visual > text for complex flows
+- Quick understanding of approach
+
+### ✅ Quality Assurance
+- Forces thinking through approach before execution
+- Identifies gaps in logic early
+
+---
+
+## Validation Checklist
+
+Before finalizing analysis_flow.md:
+
+- [ ] Business question clearly stated at top
+- [ ] Schema loading shown as Step 0 (mandatory)
+- [ ] Data sources identified
+- [ ] Validation checkpoints included
+- [ ] Decision points documented
+- [ ] Key findings visualized
+- [ ] Output artifacts listed
+- [ ] Mermaid diagram renders correctly
+- [ ] Color coding applied consistently
+- [ ] Referenced in README.md quick links
+
+---
+
+## Example: Complex Multi-Step Analysis
+
+For more complex analyses with multiple queries or decision branches:
+
+```mermaid
+graph TD
+    A[Question] --> B[Load Schema]
+    B --> C{Analysis Type?}
+    C -->|Trend| D[Time-Series Path]
+    C -->|Comparison| E[Cohort Path]
+    C -->|Both| F[Combined Approach]
+    
+    D --> G[Query 01: Trend]
+    E --> H[Query 02: Segments]
+    F --> G
+    F --> H
+    
+    G --> I{Validation}
+    H --> I
+    
+    I -->|Pass| J[EDA]
+    I -->|Fail| K[Investigate]
+    K --> I
+    
+    J --> L[Findings]
+    L --> M[Report]
+```
+
+---
+
+## Remember
+
+**EVERY analysis needs:**
+1. `analysis_flow.md` file in the analysis folder
+2. Mermaid diagram showing the complete flow
+3. Step-by-step breakdown with decisions documented
+4. Validation checkpoints highlighted
+5. Reference to this flow in README.md and HTML report
+
+**Create this AFTER completing analysis - it documents what actually happened!**
+
+
+
+
+

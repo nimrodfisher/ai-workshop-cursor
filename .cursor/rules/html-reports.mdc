@@ -15,7 +15,7 @@ When generating HTML reports at the end of an analysis, apply this branded templ
 - **Author**: Nimrod Fisher | AI Analytics Hub
 - **Website**: ai-analytics-hub.com
 - **Footer**: "The Analytics Team"
-- **Profile Image**: `.cursor/assets/profile.jpg` (embed as base64 in reports)
+- **Profile Image**: `.cursor/assets/photo.jpg` (embed as base64 in reports)
 
 ## Color Palette
 ```
@@ -209,12 +209,12 @@ body {
 
 ### Profile Image Location
 
-**Location**: `.cursor/assets/profile.jpg` (base64 embed required)
+**Location**: `.cursor/assets/photo.jpg` (base64 embed required)
 
 ### Recommended Approach
 
 1. **Create a generation script** in the analysis folder (e.g., `generate_html_report.py`) that:
-   - Reads and base64-encodes the profile image from `.cursor/assets/profile.jpg`
+   - Reads and base64-encodes the profile image from `.cursor/assets/photo.jpg`
    - Loads or embeds the analysis data (from SQL results or data structures)
    - Generates the complete HTML with all branding, CSS, and charts
    - Writes the HTML file directly to the analysis folder
@@ -253,7 +253,7 @@ from pathlib import Path
 from datetime import datetime
 
 # 1. Read and encode profile image
-profile_path = Path(".cursor/assets/profile.jpg")
+profile_path = Path(".cursor/assets/photo.jpg")
 with open(profile_path, "rb") as f:
     profile_b64 = f"data:image/jpeg;base64,{base64.b64encode(f.read()).decode()}"
 

@@ -1,0 +1,1 @@
+This command create rule based on Cursor best practice markdown file structure

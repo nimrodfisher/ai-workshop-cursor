@@ -11,6 +11,14 @@ Before presenting any analysis result, validate the data like a careful analyst 
 
 ---
 
+## Conversational Mode Integration
+
+When conversational mode is active (default), validation summaries will be presented at checkpoints for user review before proceeding.
+
+See `conversational_workflow.mdc` for checkpoint details and timing.
+
+---
+
 ## How to Report Checks
 
 For every validation, use this format:

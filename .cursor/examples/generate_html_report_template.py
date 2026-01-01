@@ -25,7 +25,7 @@ from datetime import datetime
 # 1. READ AND ENCODE PROFILE IMAGE
 # ============================================================================
 
-profile_path = Path(".cursor/assets/profile.jpg")
+profile_path = Path(".cursor/assets/photo.jpg")
 if profile_path.exists():
     with open(profile_path, "rb") as f:
         profile_b64 = f"data:image/jpeg;base64,{base64.b64encode(f.read()).decode()}"
@@ -450,3 +450,9 @@ with open(output_path, "w", encoding="utf-8") as f:
 
 print(f"✓ HTML report generated successfully: {output_path.absolute()}")
 print(f"✓ File size: {output_path.stat().st_size:,} bytes")
+
+
+
+
+
+
