@@ -15,7 +15,8 @@ When generating HTML reports at the end of an analysis, apply this branded templ
 - **Author**: Nimrod Fisher | AI Analytics Hub
 - **Website**: ai-analytics-hub.com
 - **Footer**: "The Analytics Team"
-- **Profile Image**: `.cursor/assets/photo.jpg` (embed as base64 in reports)
+- **Logo**: `.cursor/assets/logo.png` (or `.jpg`, `.jpeg`, `.svg`) - Analytics Hub logo (embed as base64 in reports)
+- **Profile Image**: `.cursor/assets/logo.jpg` (embed as base64 in reports)
 
 ## Color Palette
 ```
@@ -36,7 +37,7 @@ Error:          #EF4444 (negative metrics)
 1. `#2563EB` 2. `#0EA5E9` 3. `#10B981` 4. `#F59E0B` 5. `#8B5CF6` 6. `#EC4899` 7. `#64748B`
 
 ## Required Section Structure
-1. **Header** - Profile image (top-left), title, date, author name
+1. **Header** - Analytics Hub logo (top-left), title, date, author name
 2. **Executive Summary** - Blue gradient box with key findings
 3. **Methodology** - Data sources, approach, limitations
 4. **Findings** - Analysis with visualizations
@@ -123,6 +124,13 @@ body {
     gap: 1.5rem;
 }
 
+.report-header img.logo {
+    height: 48px;
+    width: auto;
+    object-fit: contain;
+    filter: brightness(0) invert(1); /* Makes logo white on dark header */
+}
+
 .report-header img.profile {
     width: 64px;
     height: 64px;
@@ -205,91 +213,140 @@ body {
 
 ### Overview
 
-**ALWAYS use a Python script** that handles the entire report generation in one step. This avoids file size limits, command issues, and intermediate file management.
+**Generate HTML reports directly** using the write tool. Load images, convert to base64 inline, and write the complete HTML file in one step. Follow all branding guidelines and CSS styling from the template above.
 
-### Profile Image Location
+### Image Locations
 
-**Location**: `.cursor/assets/photo.jpg` (base64 embed required)
+- **Logo**: `.cursor/assets/logo.png` (or `.jpg`, `.jpeg`, `.svg`) - Analytics Hub logo (base64 embed required)
+- **Profile Image**: `.cursor/assets/logo.jpg` (base64 embed required)
 
-### Recommended Approach
+### Direct Generation Approach
 
-1. **Create a generation script** in the analysis folder (e.g., `generate_html_report.py`) that:
-   - Reads and base64-encodes the profile image from `.cursor/assets/photo.jpg`
-   - Loads or embeds the analysis data (from SQL results or data structures)
-   - Generates the complete HTML with all branding, CSS, and charts
-   - Writes the HTML file directly to the analysis folder
+**Generate HTML files directly** - do NOT create Python scripts. Follow these steps:
 
-2. **Execute the script** using the correct Python command:
-   - Windows: `py generate_html_report.py`
-   - Unix/Mac: `python3 generate_html_report.py`
+1. **Load and convert images to base64:**
+   - Use a Python one-liner via terminal to convert logo image to base64
+   - Use a Python one-liner via terminal to convert profile image to base64
+   - Store the base64 strings for embedding in HTML
 
-3. **Clean up** the generation script after successful completion (optional)
+2. **Load analysis data:**
+   - Read JSON files from `analyses/{YYYY-MM-DD}_{analysis_slug}/data/` folder
+   - Extract findings, metrics, and data points from the analysis
 
-4. **Save the report** in the analysis folder:
-   - Path: `analyses/{YYYY-MM-DD}_{analysis_slug}/report.html`
-   - Example: `analyses/2024-12-15_mrr-by-plan-analysis/report.html`
+3. **Generate complete HTML:**
+   - Use the **Full CSS Template** (lines 82-210 above) - include ALL CSS inline
+   - Follow the **Required Section Structure** (lines 39-45)
+   - Embed logo and profile images as base64 data URIs
+   - Include all branding elements (header, footer, colors, typography)
+   - Add charts using ECharts or Plotly via CDN
+   - Make it self-contained (all CSS and JavaScript inline or via CDN)
 
-### Why This Approach Works
+4. **Write HTML file directly:**
+   - Path: `analyses/{YYYY-MM-DD}_{analysis_slug}/deliverables/report.html`
+   - Example: `analyses/2024-12-15_mrr-by-plan-analysis/deliverables/report.html`
+   - Use the `write` tool to create the file
 
-✅ **Avoids read_file limits**: Base64 strings are 200K+ characters, exceeding tool limits
-✅ **Cross-platform**: `py` command works reliably on Windows, `python3` on Unix
-✅ **Single execution**: No intermediate files or multi-step processes
-✅ **Atomic operation**: Either succeeds completely or fails cleanly
-✅ **Organized output**: Report stays with related analysis artifacts
+### Image Base64 Conversion
+
+To convert images to base64, use Python inline commands:
+
+**For logo:**
+```bash
+python -c "import base64; print('data:image/jpeg;base64,' + base64.b64encode(open('.cursor/assets/logo.jpg', 'rb').read()).decode())"
+```
+
+**For profile:**
+```bash
+python -c "import base64; print('data:image/jpeg;base64,' + base64.b64encode(open('.cursor/assets/logo.jpg', 'rb').read()).decode())"
+```
+
+**Note:** Adjust the MIME type (`image/jpeg`, `image/png`, `image/svg+xml`) based on the actual file format.
+
+### HTML Structure Template
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{Analysis Title} - AI Analytics Hub</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <style>
+        /* Include ALL CSS from Full CSS Template (lines 82-210) */
+        :root { /* ... all CSS variables ... */ }
+        body { /* ... all body styles ... */ }
+        /* ... all other CSS classes ... */
+    </style>
+</head>
+<body>
+    <div class="report-container">
+        <div class="report-header">
+            <img src="{logo_base64_data_uri}" alt="Analytics Hub Logo" class="logo">
+            <div>
+                <h1>{Analysis Title}</h1>
+                <p>{Date} • Nimrod Fisher | AI Analytics Hub</p>
+            </div>
+            <img src="{profile_base64_data_uri}" alt="Nimrod Fisher" class="profile">
+        </div>
+        
+        <div class="section">
+            <div class="section-title">Executive Summary</div>
+            <div class="executive-summary">
+                <!-- Key findings -->
+            </div>
+        </div>
+        
+        <div class="section">
+            <div class="section-title">Methodology</div>
+            <!-- Data sources, approach, limitations -->
+        </div>
+        
+        <div class="section">
+            <div class="section-title">Findings</div>
+            <!-- Analysis with visualizations -->
+            <div class="chart-container">
+                <div class="chart-title">Chart Title</div>
+                <div id="chart1" class="chart"></div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <div class="section-title">Recommendations</div>
+            <div class="recommendations">
+                <!-- Actionable insights -->
+            </div>
+        </div>
+        
+        <div class="report-footer">
+            The Analytics Team • ai-analytics-hub.com
+        </div>
+    </div>
+    
+    <script>
+        // ECharts initialization and chart rendering
+        // Load data from embedded JSON or inline data structures
+    </script>
+</body>
+</html>
+```
+
+### Key Requirements
+
+✅ **Self-contained HTML** - All CSS inline, external resources via CDN only
+✅ **Branding compliance** - Use exact colors, fonts, and structure from guidelines
+✅ **Logo embedding** - Logo must be embedded as base64 data URI
+✅ **Profile image** - Profile image must be embedded as base64 data URI
+✅ **Complete CSS** - Include ALL CSS from the Full CSS Template (lines 82-210)
+✅ **Print-friendly** - Include print media queries
+✅ **Chart support** - ECharts or Plotly via CDN for visualizations
 
 ### Anti-Patterns to Avoid
 
-❌ **DON'T** use `python -c` for complex operations (fails on Windows PowerShell)
-❌ **DON'T** try to read large base64 strings with read_file tool (exceeds limits)
-❌ **DON'T** save base64 to intermediate files (unnecessary complexity)
-❌ **DON'T** use shell redirection for large outputs (unreliable)
-❌ **DON'T** save reports in workspace root (keep organized in analysis folders)
-
-### Script Template Structure
-
-```python
-import base64
-from pathlib import Path
-from datetime import datetime
-
-# 1. Read and encode profile image
-profile_path = Path(".cursor/assets/photo.jpg")
-with open(profile_path, "rb") as f:
-    profile_b64 = f"data:image/jpeg;base64,{base64.b64encode(f.read()).decode()}"
-
-# 2. Prepare your analysis data
-# (from SQL query results, data structures, etc.)
-
-# 3. Generate complete HTML content
-html_content = f"""<!DOCTYPE html>
-<html lang="en">
-<head>
-    <!-- Include all CSS inline -->
-</head>
-<body>
-    <div class="report-header">
-        <img src="{profile_b64}" alt="Profile" class="profile">
-        <!-- Rest of header -->
-    </div>
-    <!-- Rest of report -->
-</body>
-</html>
-"""
-
-# 4. Write to analysis folder (NOT workspace root)
-output_path = Path("analyses/YYYY-MM-DD_analysis-name/report.html")
-output_path.parent.mkdir(parents=True, exist_ok=True)
-with open(output_path, "w", encoding="utf-8") as f:
-    f.write(html_content)
-
-print(f"HTML report generated: {output_path.absolute()}")
-```
-
-### Complete Example
-
-See `.cursor/examples/generate_html_report_template.py` for a full working example that includes:
-- Profile image embedding
-- Data formatting for charts
-- Complete HTML structure with branding
-- ECharts integration
-- Proper file path handling
+❌ **DON'T** create Python scripts - generate HTML directly
+❌ **DON'T** skip CSS styling - include ALL CSS from the template
+❌ **DON'T** use external CSS files - all CSS must be inline
+❌ **DON'T** forget logo or profile images - both must be embedded
+❌ **DON'T** save reports in workspace root - use `deliverables/` folder
+❌ **DON'T** deviate from branding guidelines - follow colors, fonts, and structure exactly

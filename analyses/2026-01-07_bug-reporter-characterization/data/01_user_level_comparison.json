@@ -1,0 +1,91 @@
+{
+  "query_name": "User-Level Bug Reporter vs Non-Reporter Comparison",
+  "execution_timestamp": "2026-01-07T16:05:00Z",
+  "cohort_summary": {
+    "bug_reporters": {
+      "user_count": 21,
+      "pct_of_total_users": 10.5,
+      "avg_account_tenure_days": 342.71,
+      "median_account_tenure_days": 342.14,
+      "total_events": 234,
+      "avg_events_per_user": 11.14,
+      "median_events_per_user": 9.0,
+      "avg_event_diversity": 3.86,
+      "max_events_per_user": 43,
+      "min_events_per_user": 2
+    },
+    "non_bug_reporters": {
+      "user_count": 179,
+      "pct_of_total_users": 89.5,
+      "avg_account_tenure_days": 389.58,
+      "median_account_tenure_days": 380.14,
+      "total_events": 1726,
+      "avg_events_per_user": 9.64,
+      "median_events_per_user": 8.0,
+      "avg_event_diversity": 3.92,
+      "max_events_per_user": 49,
+      "min_events_per_user": 1
+    }
+  },
+  "demographic_comparison": {
+    "role_distribution": {
+      "bug_reporters": {
+        "admin": {"count": 11, "pct": 52.38},
+        "analyst": {"count": 6, "pct": 28.57},
+        "viewer": {"count": 4, "pct": 19.05}
+      },
+      "non_bug_reporters": {
+        "viewer": {"count": 63, "pct": 35.20},
+        "admin": {"count": 61, "pct": 34.08},
+        "analyst": {"count": 55, "pct": 30.73}
+      }
+    },
+    "plan_distribution": {
+      "bug_reporters": {
+        "enterprise": {"count": 8, "pct": 38.10},
+        "pro": {"count": 7, "pct": 33.33},
+        "free": {"count": 6, "pct": 28.57}
+      },
+      "non_bug_reporters": {
+        "enterprise": {"count": 83, "pct": 46.37},
+        "pro": {"count": 52, "pct": 29.05},
+        "free": {"count": 44, "pct": 24.58}
+      }
+    }
+  },
+  "behavioral_comparison": {
+    "event_type_distribution": {
+      "bug_reporters": [
+        {"event_type": "report_view", "event_count": 53, "unique_users": 16, "pct": 22.65},
+        {"event_type": "file_upload", "event_count": 51, "unique_users": 17, "pct": 21.79},
+        {"event_type": "logout", "event_count": 49, "unique_users": 16, "pct": 20.94},
+        {"event_type": "login", "event_count": 48, "unique_users": 19, "pct": 20.51},
+        {"event_type": "api_call", "event_count": 33, "unique_users": 13, "pct": 14.10}
+      ],
+      "non_bug_reporters": [
+        {"event_type": "file_upload", "event_count": 361, "unique_users": 143, "pct": 20.92},
+        {"event_type": "logout", "event_count": 358, "unique_users": 143, "pct": 20.74},
+        {"event_type": "login", "event_count": 344, "unique_users": 148, "pct": 19.93},
+        {"event_type": "report_view", "event_count": 335, "unique_users": 137, "pct": 19.41},
+        {"event_type": "api_call", "event_count": 328, "unique_users": 131, "pct": 19.00}
+      ]
+    }
+  },
+  "key_findings": [
+    "Bug reporters are slightly MORE engaged: 11.14 avg events vs 9.64 for non-reporters (+15.5%)",
+    "Bug reporters are MORE likely to be admins: 52.38% vs 34.08% for non-reporters",
+    "Bug reporters are LESS likely to be viewers: 19.05% vs 35.20% for non-reporters",
+    "Bug reporters have SLIGHTLY NEWER accounts: 342.71 days tenure vs 389.58 days (-12%)",
+    "Plan distribution is fairly similar between cohorts, with slight variations",
+    "Bug reporters use LESS api_call events: 14.10% vs 19.00% for non-reporters",
+    "Bug reporters use MORE report_view events: 22.65% vs 19.41% for non-reporters",
+    "Event diversity is nearly identical: 3.86 vs 3.92 event types per user"
+  ],
+  "statistical_significance": {
+    "engagement_lift": "+15.5% more events per user for bug reporters",
+    "admin_role_overrepresentation": "+53.6% more likely to be admin (52.38% vs 34.08%)",
+    "viewer_role_underrepresentation": "-45.9% less likely to be viewer (19.05% vs 35.20%)",
+    "account_age_difference": "-12.0% newer accounts for bug reporters"
+  }
+}
+

@@ -1,0 +1,24 @@
+[
+  {
+    "plan": "enterprise",
+    "account_count": 19,
+    "pct_of_total": "38.00",
+    "avg_users_per_account": "4.79",
+    "avg_active_subs": "1.71"
+  },
+  {
+    "plan": "free",
+    "account_count": 16,
+    "pct_of_total": "32.00",
+    "avg_users_per_account": "3.33",
+    "avg_active_subs": "2.07"
+  },
+  {
+    "plan": "pro",
+    "account_count": 15,
+    "pct_of_total": "30.00",
+    "avg_users_per_account": "3.93",
+    "avg_active_subs": "2.08"
+  }
+]
+

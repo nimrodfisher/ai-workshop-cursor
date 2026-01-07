@@ -18,6 +18,7 @@ After execution, you **MUST** display:
 1. **Formatted SQL Code** - Properly indented and readable
 2. **Comments** - All comments from the query preserved
 3. **Simple Explanation** - Plain language description of what the query does
+4. **Data Persistence** - Save results to the analysis `data/` folder as JSON
 
 ## Output Template
 
@@ -157,6 +158,7 @@ After executing SQL, ensure you include:
 - [ ] **Simple explanation** in plain language
 - [ ] **Formatted SQL code** with proper indentation
 - [ ] **All comments preserved** from the original query
+- [ ] **Data persistence** - results saved to `data/` as JSON
 - [ ] **Results summary** or formatted table
 - [ ] **Code block** with SQL syntax highlighting
 - [ ] **Clear separation** between explanation, code, and results

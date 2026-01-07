@@ -1,0 +1,38 @@
+[
+  {
+    "event_type": "file_upload",
+    "total_events": 412,
+    "unique_users": 160,
+    "events_last_30d": 0,
+    "pct_of_total": "21.02"
+  },
+  {
+    "event_type": "logout",
+    "total_events": 407,
+    "unique_users": 159,
+    "events_last_30d": 0,
+    "pct_of_total": "20.77"
+  },
+  {
+    "event_type": "login",
+    "total_events": 392,
+    "unique_users": 167,
+    "events_last_30d": 0,
+    "pct_of_total": "20.00"
+  },
+  {
+    "event_type": "report_view",
+    "total_events": 388,
+    "unique_users": 153,
+    "events_last_30d": 0,
+    "pct_of_total": "19.80"
+  },
+  {
+    "event_type": "api_call",
+    "total_events": 361,
+    "unique_users": 144,
+    "events_last_30d": 0,
+    "pct_of_total": "18.42"
+  }
+]
+

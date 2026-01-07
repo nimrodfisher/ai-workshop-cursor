@@ -1,7 +1,6 @@
 ---
-alwaysApply: true
+alwaysApply: false
 ---
-
 # Data Validation Rules for Analysis
 
 ## Core Principle

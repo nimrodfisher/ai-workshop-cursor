@@ -1,0 +1,48 @@
+[
+  {
+    "cohort": "Bug Reporter",
+    "role": "admin",
+    "plan": "pro",
+    "industry": "MarTech",
+    "user_count": 3,
+    "avg_user_tenure_days": "282.67",
+    "avg_account_tenure_days": "297.33"
+  },
+  {
+    "cohort": "Bug Reporter",
+    "role": "admin",
+    "plan": "enterprise",
+    "industry": "HealthTech",
+    "user_count": 2,
+    "avg_user_tenure_days": "288.00",
+    "avg_account_tenure_days": "301.00"
+  },
+  {
+    "cohort": "Bug Reporter",
+    "role": "admin",
+    "plan": "free",
+    "industry": "eCommerce",
+    "user_count": 2,
+    "avg_user_tenure_days": "328.00",
+    "avg_account_tenure_days": "346.50"
+  },
+  {
+    "cohort": "Bug Reporter",
+    "role": "analyst",
+    "plan": "free",
+    "industry": "EdTech",
+    "user_count": 1,
+    "avg_user_tenure_days": "470.00",
+    "avg_account_tenure_days": "500.00"
+  },
+  {
+    "cohort": "Bug Reporter",
+    "role": "viewer",
+    "plan": "pro",
+    "industry": "eCommerce",
+    "user_count": 1,
+    "avg_user_tenure_days": "251.00",
+    "avg_account_tenure_days": "265.00"
+  }
+]
+

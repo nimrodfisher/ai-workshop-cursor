@@ -10,31 +10,82 @@ This script generates a branded HTML analysis report with:
 Usage:
     1. Copy this file to your analysis folder
     2. Update the analysis data section with your data
-    3. Update the output_path to match your analysis folder
-    4. Run: py generate_html_report.py (Windows) or python3 generate_html_report.py (Unix)
-    5. Delete the script after successful generation (optional)
+    3. Run: py generate_html_report.py (Windows) or python3 generate_html_report.py (Unix)
+    4. Delete the script after successful generation (optional)
 
 Author: AI Analytics Hub
 """
 
-import base64
+import sys
+import json
 from pathlib import Path
 from datetime import datetime
 
 # ============================================================================
-# 1. READ AND ENCODE PROFILE IMAGE
+# SETUP: Import utility functions for reliable path handling
 # ============================================================================
 
-profile_path = Path(".cursor/assets/photo.jpg")
-if profile_path.exists():
-    with open(profile_path, "rb") as f:
-        profile_b64 = f"data:image/jpeg;base64,{base64.b64encode(f.read()).decode()}"
-else:
-    profile_b64 = ""
-    print("Warning: Profile image not found. Report will be generated without image.")
+# Add workspace root to path
+workspace_root = Path(__file__).parent.parent.parent
+sys.path.insert(0, str(workspace_root))
+
+try:
+    # Import using absolute path from workspace root
+    import importlib.util
+    utils_path = workspace_root / ".cursor" / "utils" / "report_generator_utils.py"
+    spec = importlib.util.spec_from_file_location("report_generator_utils", utils_path)
+    report_utils = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(report_utils)
+    
+    # Import functions
+    get_workspace_root = report_utils.get_workspace_root
+    load_profile_image = report_utils.load_profile_image
+    load_json_data = report_utils.load_json_data
+    safe_write_file = report_utils.safe_write_file
+    get_analysis_folder_path = report_utils.get_analysis_folder_path
+    validate_data_files = report_utils.validate_data_files
+except Exception as e:
+    print(f"Error: Could not import utility functions: {e}")
+    print(f"Ensure .cursor/utils/report_generator_utils.py exists at {workspace_root / '.cursor' / 'utils' / 'report_generator_utils.py'}")
+    sys.exit(1)
 
 # ============================================================================
-# 2. PREPARE YOUR ANALYSIS DATA
+# PATH SETUP: Automatic path resolution
+# ============================================================================
+
+script_path = Path(__file__)
+analysis_folder = get_analysis_folder_path(script_path)
+workspace_root = get_workspace_root(script_path)
+data_dir = analysis_folder / "data"
+
+# ============================================================================
+# 1. LOAD PROFILE IMAGE (handles path resolution automatically)
+# ============================================================================
+
+profile_b64 = load_profile_image(workspace_root)
+
+# ============================================================================
+# 2. VALIDATE AND LOAD DATA FILES
+# ============================================================================
+
+# List your required data files here
+required_files = [
+    # "01_your-data.json",
+    # Add more required files as needed
+]
+
+# Validate files exist (optional - comment out if not using data files)
+# validation_results = validate_data_files(data_dir, required_files)
+# if not all(validation_results.values()):
+#     print("Error: Missing required data files. Cannot generate report.")
+#     sys.exit(1)
+
+# Load your data files (example - customize as needed)
+# demographics = load_json_data(data_dir, "01_bug-reporters-demographics.json")
+# behavior = load_json_data(data_dir, "02_bug-reporters-user-behavior.json")
+
+# ============================================================================
+# 3. PREPARE YOUR ANALYSIS DATA
 # ============================================================================
 # Replace this section with your actual analysis data
 
@@ -389,7 +440,7 @@ html_content = f"""<!DOCTYPE html>
             xAxis: {{
                 type: 'category',
                 boundaryGap: false,
-                data: {chart_months}
+                data: {json.dumps(chart_months)}
             }},
             yAxis: {{
                 type: 'value',
@@ -400,7 +451,7 @@ html_content = f"""<!DOCTYPE html>
                     name: 'Series 1',
                     type: 'line',
                     smooth: true,
-                    data: {chart_series_1},
+                    data: {json.dumps(chart_series_1)},
                     itemStyle: {{ color: '#2563EB' }},
                     lineStyle: {{ width: 3 }}
                 }},
@@ -408,7 +459,7 @@ html_content = f"""<!DOCTYPE html>
                     name: 'Series 2',
                     type: 'line',
                     smooth: true,
-                    data: {chart_series_2},
+                    data: {json.dumps(chart_series_2)},
                     itemStyle: {{ color: '#0EA5E9' }},
                     lineStyle: {{ width: 3 }}
                 }},
@@ -416,7 +467,7 @@ html_content = f"""<!DOCTYPE html>
                     name: 'Series 3',
                     type: 'line',
                     smooth: true,
-                    data: {chart_series_3},
+                    data: {json.dumps(chart_series_3)},
                     itemStyle: {{ color: '#10B981' }},
                     lineStyle: {{ width: 3 }}
                 }}
@@ -434,22 +485,17 @@ html_content = f"""<!DOCTYPE html>
 """
 
 # ============================================================================
-# 4. WRITE TO ANALYSIS FOLDER
+# 4. SAVE REPORT (automatic path resolution and error handling)
 # ============================================================================
 
-# UPDATE THIS PATH to match your analysis folder
-# Example: analyses/2024-12-15_your-analysis-name/report.html
-output_path = Path("analyses/YYYY-MM-DD_analysis-name/report.html")
+output_path = analysis_folder / "deliverables" / "report.html"
 
-# Create directory if it doesn't exist
-output_path.parent.mkdir(parents=True, exist_ok=True)
-
-# Write the HTML file
-with open(output_path, "w", encoding="utf-8") as f:
-    f.write(html_content)
-
-print(f"✓ HTML report generated successfully: {output_path.absolute()}")
-print(f"✓ File size: {output_path.stat().st_size:,} bytes")
+if safe_write_file(output_path, html_content):
+    print(f"[SUCCESS] HTML report generated: {output_path.absolute()}")
+    print(f"[INFO] File size: {output_path.stat().st_size:,} bytes")
+else:
+    print(f"[ERROR] Failed to generate report")
+    sys.exit(1)
 
 
 

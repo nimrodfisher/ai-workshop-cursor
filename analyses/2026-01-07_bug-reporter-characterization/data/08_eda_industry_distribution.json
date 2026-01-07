@@ -1,0 +1,52 @@
+[
+  {
+    "industry": "eCommerce",
+    "account_count": 10,
+    "pct_of_total": "20.00",
+    "avg_users_per_account": "2.90",
+    "avg_account_age_days": 375
+  },
+  {
+    "industry": "MarTech",
+    "account_count": 8,
+    "pct_of_total": "16.00",
+    "avg_users_per_account": "3.63",
+    "avg_account_age_days": 373
+  },
+  {
+    "industry": "SaaS",
+    "account_count": 8,
+    "pct_of_total": "16.00",
+    "avg_users_per_account": "5.75",
+    "avg_account_age_days": 362
+  },
+  {
+    "industry": "HealthTech",
+    "account_count": 7,
+    "pct_of_total": "14.00",
+    "avg_users_per_account": "4.67",
+    "avg_account_age_days": 358
+  },
+  {
+    "industry": "FinTech",
+    "account_count": 6,
+    "pct_of_total": "12.00",
+    "avg_users_per_account": "4.67",
+    "avg_account_age_days": 452
+  },
+  {
+    "industry": "CyberSecurity",
+    "account_count": 6,
+    "pct_of_total": "12.00",
+    "avg_users_per_account": "2.83",
+    "avg_account_age_days": 426
+  },
+  {
+    "industry": "EdTech",
+    "account_count": 5,
+    "pct_of_total": "10.00",
+    "avg_users_per_account": "4.60",
+    "avg_account_age_days": 377
+  }
+]
+

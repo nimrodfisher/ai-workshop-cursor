@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bug Reporter Characterization Analysis - AI Analytics Hub</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <style>
+        :root {
+            --color-primary: #2563EB;
+            --color-primary-dark: #1E40AF;
+            --color-secondary: #0EA5E9;
+            --color-bg: #F8FAFC;
+            --color-surface: #FFFFFF;
+            --color-text: #1E293B;
+            --color-text-secondary: #64748B;
+            --color-border: #E2E8F0;
+            --color-success: #10B981;
+            --color-warning: #F59E0B;
+            --color-error: #EF4444;
+            --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+        
+        body {
+            font-family: var(--font-sans);
+            font-size: 16px;
+            line-height: 1.6;
+            color: var(--color-text);
+            background: var(--color-bg);
+            padding: 2rem;
+            margin: 0;
+        }
+        
+        .report-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: var(--color-surface);
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+        }
+        
+        .report-header {
+            background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+            color: white;
+            padding: 2rem 2.5rem;
+            border-radius: 12px 12px 0 0;
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+        
+        .report-header img.profile {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            border: 3px solid rgba(255,255,255,0.3);
+            object-fit: cover;
+        }
+        
+        .report-header h1 {
+            margin: 0;
+            font-size: 1.75rem;
+            font-weight: 700;
+        }
+        
+        .report-header p {
+            margin: 0.25rem 0 0 0;
+            opacity: 0.9;
+        }
+        
+        .section {
+            padding: 2rem 2.5rem;
+        }
+        
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--color-primary);
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--color-border);
+        }
+        
+        .executive-summary {
+            background: linear-gradient(135deg, #EFF6FF 0%, #F0F9FF 100%);
+            border-left: 4px solid var(--color-primary);
+            padding: 1.5rem;
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 1.5rem;
+        }
+        
+        .recommendations {
+            background: linear-gradient(135deg, #ECFDF5 0%, #F0FDFA 100%);
+            border-left: 4px solid var(--color-success);
+            padding: 1.5rem;
+            border-radius: 0 8px 8px 0;
+        }
+        
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+        
+        .metric-card {
+            background: var(--color-bg);
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            padding: 1.25rem;
+            text-align: center;
+        }
+        
+        .metric-card .value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--color-primary);
+        }
+        
+        .metric-card.positive .value {
+            color: var(--color-success);
+        }
+        
+        .metric-card.negative .value {
+            color: var(--color-error);
+        }
+        
+        .metric-card .label {
+            font-size: 0.875rem;
+            color: var(--color-text-secondary);
+            margin-top: 0.5rem;
+        }
+        
+        .chart-container {
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+        }
+        
+        .chart-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--color-text);
+            margin-bottom: 1rem;
+        }
+        
+        .chart {
+            width: 100%;
+            height: 400px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+        }
+        
+        th, td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid var(--color-border);
+        }
+        
+        th {
+            background: var(--color-bg);
+            font-weight: 600;
+            color: var(--color-primary);
+        }
+        
+        tr:hover {
+            background: var(--color-bg);
+        }
+        
+        .callout {
+            padding: 1rem 1.25rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+        }
+        
+        .callout.info {
+            background: #EFF6FF;
+            border-left: 4px solid var(--color-primary);
+        }
+        
+        .callout.warning {
+            background: #FFFBEB;
+            border-left: 4px solid var(--color-warning);
+        }
+        
+        .callout.success {
+            background: #ECFDF5;
+            border-left: 4px solid var(--color-success);
+        }
+        
+        .report-footer {
+            background: var(--color-bg);
+            padding: 1.5rem 2.5rem;
+            text-align: center;
+            border-top: 1px solid var(--color-border);
+            font-size: 0.875rem;
+            color: var(--color-text-secondary);
+            border-radius: 0 0 12px 12px;
+        }
+        
+        @media print {
+            body { background: white; padding: 0; }
+            .report-container { box-shadow: none; }
+            .section { page-break-inside: avoid; }
+        }
+    </style>
+</head>
+<body>
+    <div class="report-container">
+        <div class="report-header">
+            <img src="" alt="Nimrod Fisher" class="profile">
+            <div style="flex: 1;">
+                <h1>Bug Reporter Characterization Analysis</h1>
+                <p>January 7, 2026 • Nimrod Fisher | AI Analytics Hub</p>
+            </div>
+        </div>
+        
+        <div class="section">
+            <div class="section-title">Executive Summary</div>
+            <div class="executive-summary">
+                <p><strong>Key Finding:</strong> Bug reporters are high-value power users who generate <strong>28-32% more revenue</strong> and are <strong>15.6% more active</strong> than other users. They show <strong>no elevated churn risk</strong>.</p>
+                <p>This analysis examined 22 bug tickets from 21 unique users across 20 accounts (Dec 2024 - Jun 2025). Bug reports should be treated as <strong>engagement signals from premium customers</strong>, not churn warnings.</p>
+            </div>
+            
+            <div class="metrics-grid">
+                <div class="metric-card positive">
+                    <div class="value">+15.6%</div>
+                    <div class="label">More Active (Events)</div>
+                </div>
+                <div class="metric-card positive">
+                    <div class="value">+28.2%</div>
+                    <div class="label">Higher MRR</div>
+                </div>
+                <div class="metric-card positive">
+                    <div class="value">+31.8%</div>
+                    <div class="label">Higher ARPU</div>
+                </div>
+                <div class="metric-card">
+                    <div class="value">Similar</div>
+                    <div class="label">Churn Rate</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <div class="section-title">Key Findings</div>
+            
+            <div class="chart-container">
+                <div class="chart-title">Activity Comparison: Bug Reporters vs Other Users</div>
+                <div id="activityChart" class="chart"></div>
+            </div>
+            
+            <div class="chart-container">
+                <div class="chart-title">Revenue Comparison: Bug Ticket Accounts vs Other Accounts</div>
+                <div id="revenueChart" class="chart"></div>
+            </div>
+            
+            <h3 style="color: var(--color-primary); margin-top: 2rem;">Detailed Findings:</h3>
+            
+            <div class="callout success">
+                <strong>1. Bug Reporters Are Power Users</strong><br>
+                They generate 15.6% more events (11.14 vs 9.64 avg) and remain active slightly longer (72 vs 68 days activity span).
+            </div>
+            
+            <div class="callout success">
+                <strong>2. High-Value Customers</strong><br>
+                Bug-reporting accounts generate 28-32% more revenue ($210.59 vs $164.21 avg MRR) with 8% longer subscription tenure.
+            </div>
+            
+            <div class="callout info">
+                <strong>3. No Churn Risk Signal</strong><br>
+                Canceled subscription rates are nearly identical (0.71 vs 0.69), indicating bug reports are NOT churn warnings.
+            </div>
+            
+            <div class="callout info">
+                <strong>4. Widespread Distribution</strong><br>
+                Bug reporting is not concentrated - only 2 accounts (4%) have multiple bug tickets. Most accounts (90%) report once.
+            </div>
+            
+            <div class="callout info">
+                <strong>5. No Feature-Specific Pattern</strong><br>
+                Bug reporters perform all event types at similar rates to other users (all overrepresentation ratios < 0.13).
+            </div>
+        </div>
+        
+        <div class="section">
+            <div class="section-title">Recommendations</div>
+            <div class="recommendations">
+                <h3 style="margin-top: 0;">Actionable Next Steps:</h3>
+                <ol>
+                    <li><strong>Prioritize bug fixes for high-MRR accounts ($150+)</strong> - They generate 28% more revenue and represent valuable customers.</li>
+                    <li><strong>Segment CSM coverage for bug-reporting accounts</strong> - $210 avg MRR warrants dedicated support and proactive outreach.</li>
+                    <li><strong>DO NOT trigger churn campaigns</strong> - Bug reports are engagement signals, not churn warnings.</li>
+                    <li><strong>Expand QA for power user workflows</strong> - Power users encounter edge cases; broad testing needed.</li>
+                    <li><strong>Investigate 2 multi-bug accounts individually</strong> - Only 2 accounts have 2+ bugs; may indicate specific issues.</li>
+                </ol>
+            </div>
+        </div>
+        
+        <div class="section">
+            <div class="section-title">Methodology</div>
+            <table>
+                <tr>
+                    <th>Aspect</th>
+                    <th>Details</th>
+                </tr>
+                <tr>
+                    <td><strong>Data Sources</strong></td>
+                    <td>79 support tickets, 200 users, 50 accounts, 1,960 events, 120 subscriptions</td>
+                </tr>
+                <tr>
+                    <td><strong>Analysis Period</strong></td>
+                    <td>December 2024 - June 2025</td>
+                </tr>
+                <tr>
+                    <td><strong>Approach</strong></td>
+                    <td>Cohort comparison between bug reporters (21 users) and other users (179 users)</td>
+                </tr>
+                <tr>
+                    <td><strong>Metrics Analyzed</strong></td>
+                    <td>Activity levels, revenue (MRR/ARPU), subscription tenure, churn rates, event patterns</td>
+                </tr>
+                <tr>
+                    <td><strong>Limitations</strong></td>
+                    <td>Sample size of 22 bug tickets; 6-month scope; bug severity not distinguished</td>
+                </tr>
+            </table>
+        </div>
+        
+        <div class="report-footer">
+            The Analytics Team • ai-analytics-hub.com
+        </div>
+    </div>
+    
+    <script>
+        // Activity Chart
+        const activityChart = echarts.init(document.getElementById('activityChart'));
+        activityChart.setOption({
+            tooltip: { trigger: 'axis' },
+            legend: { data: ['Bug Reporters', 'Other Users'] },
+            xAxis: { type: 'category', data: ['Avg Total Events', 'Avg Event Types', 'Activity Span (days)'] },
+            yAxis: { type: 'value' },
+            series: [
+                {
+                    name: 'Bug Reporters',
+                    type: 'bar',
+                    data: [11.14, 3.86, 72.00],
+                    itemStyle: { color: '#10B981' }
+                },
+                {
+                    name: 'Other Users',
+                    type: 'bar',
+                    data: [9.64, 3.92, 68.17],
+                    itemStyle: { color: '#2563EB' }
+                }
+            ]
+        });
+        
+        // Revenue Chart
+        const revenueChart = echarts.init(document.getElementById('revenueChart'));
+        revenueChart.setOption({
+            tooltip: { trigger: 'axis' },
+            legend: { data: ['Bug Ticket Accounts', 'Other Accounts'] },
+            xAxis: { type: 'category', data: ['Avg Monthly Price', 'Avg Account MRR', 'Subscription Tenure'] },
+            yAxis: { type: 'value' },
+            series: [
+                {
+                    name: 'Bug Ticket Accounts',
+                    type: 'bar',
+                    data: [126.40, 210.59, 325.97],
+                    itemStyle: { color: '#10B981' }
+                },
+                {
+                    name: 'Other Accounts',
+                    type: 'bar',
+                    data: [95.87, 164.21, 301.04],
+                    itemStyle: { color: '#2563EB' }
+                }
+            ]
+        });
+        
+        // Responsive charts
+        window.addEventListener('resize', () => {
+            activityChart.resize();
+            revenueChart.resize();
+        });
+    </script>
+</body>
+</html>

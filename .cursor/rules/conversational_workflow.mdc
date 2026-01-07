@@ -70,6 +70,8 @@ Should I proceed with [next phase description]?
 
 **⚠️ CRITICAL:** This checkpoint happens BEFORE any main analysis queries are written
 
+**⚠️ MANDATORY:** You MUST present this checkpoint and WAIT for user approval before proceeding
+
 **Purpose:** Ensure data quality is validated and understood before writing analysis queries
 
 **Template:**
@@ -93,6 +95,7 @@ Next steps:
 - Write and execute main analysis queries to answer business questions
 - Apply insights from EDA to guide query construction
 - Generate findings and synthesize results
+- **Save all query results to data/ folder in JSON format**
 
 Should I proceed with writing the main analysis queries?
 ```
@@ -108,6 +111,11 @@ Should I proceed with writing the main analysis queries?
 
 **Trigger:** After executing the first main analysis query (Phase 3)
 
+**⚠️ MANDATORY:** After executing ANY query, you MUST:
+1. Save the query results to `data/` folder as JSON (filename: `NN_query-name.json`)
+2. Present this checkpoint if it's the first main query
+3. Continue saving results for all subsequent queries
+
 **Purpose:** Review initial results before continuing with additional analysis or synthesis
 
 **Template:**
@@ -119,6 +127,7 @@ What I just did:
 - Executed analysis query to answer: [business question]
 - Retrieved [N] rows covering [scope/period]
 - Applied validation checks to results
+- **Saved query results to data/[filename].json**
 
 Key results:
 - [Primary Metric]: [value/trend/finding]
@@ -127,6 +136,7 @@ Key results:
 
 Next steps:
 - Execute additional queries if needed for complete analysis
+- **Save all query results to data/ folder**
 - Synthesize all findings into conclusions.md
 - Prepare for report generation
 
@@ -153,8 +163,10 @@ CHECKPOINT 3: Ready to Generate Reports
 ---
 What I just did:
 - Synthesized all findings into conclusions/conclusions.md
-- Documented complete analysis flow in analysis_flow.md
+- Completed all analysis and synthesis work
 - Prepared all data and visualizations for embedding
+
+Note: analysis_flow.md will be created AFTER all deliverables as the final documentation step
 
 Reports to be generated:
 1. PDF Summary Report
@@ -197,6 +209,7 @@ Once `SKIP_CHECKPOINTS = True` is set, it remains active for the rest of the ana
 - **WAIT for user response** before proceeding
 - **Do NOT assume** user wants to continue
 - **Do NOT continue** if user says stop/wait/no
+- **Do NOT skip Checkpoint 1** - it must be presented before main analysis queries
 
 ### Response Handling
 

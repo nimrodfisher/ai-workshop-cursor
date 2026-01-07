@@ -1,0 +1,87 @@
+[
+  {
+    "check_name": "Active Subscriptions",
+    "status": "INFO",
+    "issue_count": 78,
+    "details": "Number of currently active subscriptions"
+  },
+  {
+    "check_name": "Date Range",
+    "status": "INFO",
+    "issue_count": 352,
+    "details": "Subscriptions span from 2024-06-07 to 2025-05-25"
+  },
+  {
+    "check_name": "Invalid Dates",
+    "status": "PASS",
+    "issue_count": 0,
+    "details": "Subscriptions canceled before they started"
+  },
+  {
+    "check_name": "Invalid Prices",
+    "status": "PASS",
+    "issue_count": 0,
+    "details": "Subscriptions with negative or zero monthly_price"
+  },
+  {
+    "check_name": "Null IDs",
+    "status": "PASS",
+    "issue_count": 0,
+    "details": "Primary key (id) should never be null"
+  },
+  {
+    "check_name": "Null monthly_price",
+    "status": "PASS",
+    "issue_count": 0,
+    "details": "Subscriptions without pricing information"
+  },
+  {
+    "check_name": "Null org_id",
+    "status": "PASS",
+    "issue_count": 0,
+    "details": "Foreign key org_id should not be null"
+  },
+  {
+    "check_name": "Null product_id",
+    "status": "PASS",
+    "issue_count": 0,
+    "details": "Foreign key product_id should not be null"
+  },
+  {
+    "check_name": "Null started_at",
+    "status": "PASS",
+    "issue_count": 0,
+    "details": "Subscriptions without start date"
+  },
+  {
+    "check_name": "Null status",
+    "status": "PASS",
+    "issue_count": 0,
+    "details": "Subscriptions without status classification"
+  },
+  {
+    "check_name": "Orphaned org_id",
+    "status": "PASS",
+    "issue_count": 0,
+    "details": "Subscriptions with invalid org_id references"
+  },
+  {
+    "check_name": "Orphaned product_id",
+    "status": "PASS",
+    "issue_count": 0,
+    "details": "Subscriptions with invalid product_id references"
+  },
+  {
+    "check_name": "Status Distribution",
+    "status": "INFO",
+    "issue_count": 3,
+    "details": "Distinct status values: active, canceled, trialing"
+  },
+  {
+    "check_name": "Total Records",
+    "status": "PASS",
+    "issue_count": 120,
+    "details": "Total subscriptions in table"
+  }
+]
+

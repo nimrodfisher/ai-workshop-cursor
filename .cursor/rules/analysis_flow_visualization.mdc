@@ -18,9 +18,16 @@ Every analysis MUST include a visual mind map (`analysis_flow.md`) that shows:
 
 ## When to Create
 
-Create `analysis_flow.md` **at the END of the analysis** after all queries, validation, and reports are complete.
+**⚠️ DO NOT CREATE AT THE BEGINNING**
 
-This ensures:
+Create `analysis_flow.md` **ONLY at the END of the analysis** after ALL of the following are complete:
+- ✅ All SQL queries written and executed
+- ✅ All data validation checks completed
+- ✅ EDA report generated
+- ✅ Conclusions document written
+- ✅ All deliverables (PDF, HTML reports) generated
+
+**This ensures:**
 1. Accurate documentation of what actually happened (not just what was planned)
 2. Complete picture including any pivots or changes during analysis
 3. True representation of decision-making process
@@ -363,7 +370,37 @@ graph TD
 4. Validation checkpoints highlighted
 5. Reference to this flow in README.md and HTML report
 
+---
+
+## ⚠️ CRITICAL TIMING REQUIREMENT
+
+**DO NOT create `analysis_flow.md` at the beginning of an analysis.**
+
+**CREATE `analysis_flow.md` ONLY at the END of the analysis workflow, after:**
+- ✅ All SQL queries have been written and executed
+- ✅ All data validation checks have been completed
+- ✅ EDA report has been generated
+- ✅ Conclusions document has been written
+- ✅ All deliverables (PDF, HTML reports) have been generated
+
+**Why?**
+- The analysis flow documents **what actually happened**, not what was planned
+- It captures the real decision-making process, including any pivots or changes
+- It ensures accuracy by reflecting completed work, not assumptions
+- It provides true reproducibility based on actual steps taken
+
+**Timing in workflow:**
+1. Load schema
+2. Write queries
+3. Execute queries
+4. Validate data
+5. Generate EDA
+6. Write conclusions
+7. Generate reports
+8. **THEN create `analysis_flow.md`** ← Final step
+
 **Create this AFTER completing analysis - it documents what actually happened!**
+
 
 
 

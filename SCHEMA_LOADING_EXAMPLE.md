@@ -277,8 +277,3 @@ Params: {owner: "nimrodfisher", repo: "workshop-queries-repo", path: "schema.yml
 4. Follow schema formatting guidelines
 
 **No exceptions!**
-
-
-
-
-

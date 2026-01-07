@@ -1,0 +1,69 @@
+[
+  {
+    "check_name": "Date Range",
+    "status": "INFO",
+    "issue_count": 366,
+    "details": "Users created from 2024-06-16 to 2025-06-17"
+  },
+  {
+    "check_name": "Duplicate Emails",
+    "status": "WARNING",
+    "issue_count": 1,
+    "details": "Number of duplicate email addresses"
+  },
+  {
+    "check_name": "Null created_at",
+    "status": "PASS",
+    "issue_count": 0,
+    "details": "Users without creation timestamp"
+  },
+  {
+    "check_name": "Null email",
+    "status": "PASS",
+    "issue_count": 0,
+    "details": "Users without an email address"
+  },
+  {
+    "check_name": "Null full_name",
+    "status": "PASS",
+    "issue_count": 0,
+    "details": "Users without a full name"
+  },
+  {
+    "check_name": "Null IDs",
+    "status": "PASS",
+    "issue_count": 0,
+    "details": "Primary key (id) should never be null"
+  },
+  {
+    "check_name": "Null org_id",
+    "status": "PASS",
+    "issue_count": 0,
+    "details": "Foreign key org_id should not be null"
+  },
+  {
+    "check_name": "Null role",
+    "status": "PASS",
+    "issue_count": 0,
+    "details": "Users without a role assigned"
+  },
+  {
+    "check_name": "Orphaned org_id",
+    "status": "PASS",
+    "issue_count": 0,
+    "details": "Users with invalid org_id references"
+  },
+  {
+    "check_name": "Role Distribution",
+    "status": "INFO",
+    "issue_count": 3,
+    "details": "Distinct role values: admin, analyst, viewer"
+  },
+  {
+    "check_name": "Total Records",
+    "status": "PASS",
+    "issue_count": 200,
+    "details": "Total users in table"
+  }
+]
+

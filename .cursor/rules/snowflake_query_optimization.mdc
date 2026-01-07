@@ -1,9 +1,6 @@
 ---
-description: Snowflake Query Optimization Best Practices and Standards
-globs: ["**/*.sql", "**/queries/*.sql", "**/analysis/*.py"]
 alwaysApply: false
 ---
-
 # Snowflake Query Optimization Best Practices
 
 This guide outlines mandatory and recommended practices for optimizing queries in Snowflake, based on official documentation and industry standards.

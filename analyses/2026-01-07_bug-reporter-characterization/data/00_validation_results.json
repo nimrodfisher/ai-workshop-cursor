@@ -1,0 +1,99 @@
+{
+  "validation_timestamp": "2026-01-07T15:57:00Z",
+  "tables_validated": ["support_tickets", "users", "accounts", "events"],
+  "support_tickets": {
+    "total_rows": 79,
+    "unique_ids": 79,
+    "unique_orgs": 41,
+    "unique_users": 65,
+    "null_category": 0,
+    "null_status": 0,
+    "null_opened_at": 0,
+    "earliest_ticket": "2024-12-12 06:40:27.622446+00",
+    "latest_ticket": "2025-06-06 06:40:27.622706+00",
+    "closed_tickets": 40,
+    "open_tickets": 39,
+    "orphaned_org_tickets": 0,
+    "orphaned_user_tickets": 0,
+    "data_quality": "PASS",
+    "issues": []
+  },
+  "users": {
+    "total_rows": 200,
+    "unique_ids": 200,
+    "unique_orgs": 49,
+    "null_org_id": 0,
+    "null_role": 0,
+    "null_email": 0,
+    "earliest_user": "2024-06-16 06:40:27.513539+00",
+    "latest_user": "2025-06-17 06:40:27.514024+00",
+    "orphaned_users": 0,
+    "data_quality": "PASS",
+    "issues": []
+  },
+  "accounts": {
+    "total_rows": 50,
+    "unique_ids": 50,
+    "null_name": 0,
+    "null_industry": 0,
+    "null_plan": 0,
+    "earliest_account": "2024-06-06 06:40:27.513872+00",
+    "latest_account": "2025-06-06 06:40:27.513458+00",
+    "data_quality": "PASS",
+    "issues": []
+  },
+  "events": {
+    "total_rows": 1960,
+    "unique_ids": 1960,
+    "unique_orgs": 49,
+    "unique_users": 200,
+    "unique_event_types": 5,
+    "null_org_id": 0,
+    "null_event_type": 0,
+    "earliest_event": "2025-03-07 07:10:28+00",
+    "latest_event": "2025-06-06 05:02:28+00",
+    "orphaned_org_events": 0,
+    "data_quality": "PASS",
+    "issues": []
+  },
+  "categories": {
+    "bug": {
+      "ticket_count": 22,
+      "pct_of_total": 27.85,
+      "unique_orgs": 20
+    },
+    "feature_request": {
+      "ticket_count": 22,
+      "pct_of_total": 27.85,
+      "unique_orgs": 18
+    },
+    "usage_question": {
+      "ticket_count": 18,
+      "pct_of_total": 22.78,
+      "unique_orgs": 16
+    },
+    "billing": {
+      "ticket_count": 17,
+      "pct_of_total": 21.52,
+      "unique_orgs": 16
+    }
+  },
+  "bug_categories_identified": ["bug"],
+  "summary": {
+    "overall_quality": "READY FOR ANALYSIS",
+    "total_checks": 20,
+    "passed": 20,
+    "warnings": 0,
+    "failed": 0,
+    "key_findings": [
+      "79 support tickets across 41 organizations",
+      "22 bug tickets (27.85% of all tickets) from 20 organizations",
+      "200 users across 49 organizations (note: 50 accounts but 49 have users)",
+      "1,960 events from 200 users with 5 distinct event types",
+      "No orphaned records found - referential integrity is intact",
+      "No null values in critical fields",
+      "Date ranges: Accounts (Jun 2024 - Jun 2025), Tickets (Dec 2024 - Jun 2025), Events (Mar 2025 - Jun 2025)"
+    ]
+  }
+}
+

@@ -1,0 +1,108 @@
+{
+  "query_name": "High-Value Customer Bug Reporting Analysis",
+  "execution_timestamp": "2026-01-07T16:20:00Z",
+  "mrr_segment_analysis": {
+    "high_mrr": {
+      "account_count": 9,
+      "avg_mrr": 429.44,
+      "mrr_range": "357-506",
+      "accounts_with_bugs": 4,
+      "bug_reporting_rate": 44.44,
+      "total_bug_tickets": 4,
+      "avg_bug_tickets_per_account": 1.00,
+      "avg_bug_tickets_per_reporting_account": 1.00
+    },
+    "medium_mrr": {
+      "account_count": 19,
+      "avg_mrr": 204.84,
+      "mrr_range": "108-307",
+      "accounts_with_bugs": 9,
+      "bug_reporting_rate": 47.37,
+      "total_bug_tickets": 10,
+      "avg_bug_tickets_per_account": 1.11,
+      "avg_bug_tickets_per_reporting_account": 1.11
+    },
+    "low_mrr": {
+      "account_count": 12,
+      "avg_mrr": 48.75,
+      "mrr_range": "29-79",
+      "accounts_with_bugs": 2,
+      "bug_reporting_rate": 16.67,
+      "total_bug_tickets": 3,
+      "avg_bug_tickets_per_account": 1.50,
+      "avg_bug_tickets_per_reporting_account": 1.50
+    },
+    "no_subscription": {
+      "account_count": 10,
+      "avg_mrr": 0.00,
+      "mrr_range": "0-0",
+      "accounts_with_bugs": 5,
+      "bug_reporting_rate": 50.00,
+      "total_bug_tickets": 5,
+      "avg_bug_tickets_per_account": 1.00,
+      "avg_bug_tickets_per_reporting_account": 1.00
+    }
+  },
+  "plan_level_insights": {
+    "high_mrr": {
+      "enterprise": {"total": 4, "bug_reporters": 1, "bug_rate": 25.00},
+      "pro": {"total": 3, "bug_reporters": 2, "bug_rate": 66.67},
+      "free": {"total": 2, "bug_reporters": 1, "bug_rate": 50.00}
+    },
+    "medium_mrr": {
+      "free": {"total": 8, "bug_reporters": 5, "bug_rate": 62.50},
+      "pro": {"total": 8, "bug_reporters": 4, "bug_rate": 50.00},
+      "enterprise": {"total": 3, "bug_reporters": 0, "bug_rate": 0.00}
+    },
+    "low_mrr": {
+      "enterprise": {"total": 7, "bug_reporters": 2, "bug_rate": 28.57},
+      "free": {"total": 4, "bug_reporters": 0, "bug_rate": 0.00},
+      "pro": {"total": 1, "bug_reporters": 0, "bug_rate": 0.00}
+    },
+    "no_subscription": {
+      "enterprise": {"total": 5, "bug_reporters": 4, "bug_rate": 80.00},
+      "pro": {"total": 3, "bug_reporters": 1, "bug_rate": 33.33},
+      "free": {"total": 2, "bug_reporters": 0, "bug_rate": 0.00}
+    }
+  },
+  "key_findings": [
+    "NO SUBSCRIPTION accounts have HIGHEST bug reporting rate: 50.00%",
+    "Medium MRR accounts have similar bug rate to high MRR: 47.37% vs 44.44%",
+    "Low MRR accounts have LOWEST bug reporting rate: 16.67%",
+    "Bug reporting rate is U-SHAPED: high at extremes (no subscription & high MRR), low in middle (low MRR)",
+    "Enterprise accounts WITHOUT subscriptions report bugs at 80% rate - highest of all segments",
+    "Within High MRR: Pro plans report MORE bugs (66.67%) than Enterprise (25.00%)",
+    "Within Medium MRR: Free plans report MORE bugs (62.50%) than paid plans",
+    "Low MRR segment shows MINIMAL bug reporting across all plans"
+  ],
+  "statistical_insights": {
+    "bug_rate_by_value": {
+      "highest": "No Subscription (50.00%)",
+      "second": "Medium MRR (47.37%)",
+      "third": "High MRR (44.44%)",
+      "lowest": "Low MRR (16.67%)"
+    },
+    "surprising_patterns": [
+      "Accounts with NO subscription report MORE bugs than paying low-value customers",
+      "Free trial/evaluation users (no subscription, enterprise plan) are extremely likely to report bugs (80%)",
+      "Low-value customers report FEWER bugs - possibly less engaged or fewer features used"
+    ]
+  },
+  "business_implications": [
+    "NO SUBSCRIPTION accounts (likely trials/evaluation) are highly engaged and report many bugs",
+    "This suggests TRIAL USERS are actively testing the product and finding issues",
+    "Low MRR customers may be less engaged or using fewer features (less bug exposure)",
+    "High-value customers report bugs at moderate rates - engaged but perhaps more tolerant",
+    "Bug reports from NO SUBSCRIPTION accounts are CRITICAL - these are potential high-value customers evaluating",
+    "The 80% bug rate for Enterprise no-subscription suggests evaluation/trial phase needs attention",
+    "Low MRR segment's low bug rate (16.67%) suggests either: limited usage, high tolerance, or feature limitations"
+  ],
+  "recommendations": [
+    "PRIORITIZE bug fixes for trial/evaluation users (no subscription) - they're actively evaluating and finding issues",
+    "Focus on improving trial experience - 80% of enterprise trials report bugs",
+    "Investigate why low MRR customers report fewer bugs - are they less engaged?",
+    "Consider that bug reporting is a sign of ENGAGEMENT, not necessarily dissatisfaction",
+    "Use bug reports from trial users as early warning signals for onboarding friction"
+  ]
+}
+

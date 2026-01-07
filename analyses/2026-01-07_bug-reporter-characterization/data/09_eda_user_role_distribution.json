@@ -1,0 +1,24 @@
+[
+  {
+    "role": "admin",
+    "user_count": 72,
+    "pct_of_total": "36.00",
+    "avg_user_age_days": 358,
+    "plans_represented": "enterprise, free, pro"
+  },
+  {
+    "role": "viewer",
+    "user_count": 67,
+    "pct_of_total": "33.50",
+    "avg_user_age_days": 370,
+    "plans_represented": "enterprise, free, pro"
+  },
+  {
+    "role": "analyst",
+    "user_count": 61,
+    "pct_of_total": "30.50",
+    "avg_user_age_days": 387,
+    "plans_represented": "enterprise, free, pro"
+  }
+]
+

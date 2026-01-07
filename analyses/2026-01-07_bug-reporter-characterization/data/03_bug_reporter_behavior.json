@@ -1,0 +1,64 @@
+{
+  "query_name": "Bug Reporter Behavioral Patterns - Before and After First Bug Report",
+  "execution_timestamp": "2026-01-07T16:15:00Z",
+  "data_limitation": "Most bug tickets (Dec 2024 - Apr 2025) occurred before the events table time range (Mar 2025 - Jun 2025), limiting before/after event analysis",
+  "aggregated_metrics": {
+    "total_bug_reporters": 21,
+    "avg_days_to_first_bug": 14.00,
+    "median_days_to_first_bug": 6.00,
+    "avg_bug_tickets_per_user": 1.05,
+    "avg_events_7days_before": 0.19,
+    "avg_events_7days_after": 0.19,
+    "avg_event_types_before": 0.19,
+    "avg_event_types_after": 0.14,
+    "users_with_events_before": 3,
+    "users_with_events_after": 2,
+    "users_with_no_nearby_events": 17
+  },
+  "role_distribution": {
+    "admin": {
+      "bug_reporters": 11,
+      "pct_of_bug_reporters": 52.38
+    },
+    "analyst": {
+      "bug_reporters": 6,
+      "pct_of_bug_reporters": 28.57
+    },
+    "viewer": {
+      "bug_reporters": 4,
+      "pct_of_bug_reporters": 19.05
+    }
+  },
+  "repeat_behavior": {
+    "one_bug_ticket": {
+      "user_count": 20,
+      "pct_of_users": 95.24
+    },
+    "two_bug_tickets": {
+      "user_count": 1,
+      "pct_of_users": 4.76
+    },
+    "three_plus_bug_tickets": {
+      "user_count": 0,
+      "pct_of_users": 0.00
+    }
+  },
+  "key_findings": [
+    "Bug reports happen VERY QUICKLY after signup: median 6 days, avg 14 days",
+    "Most bug reporters (95.24%) only open ONE bug ticket - not repeat reporters",
+    "LIMITED data overlap: 17 out of 21 bug reporters have no events in 7-day window around bug report",
+    "Events data starts AFTER most bug tickets were filed, limiting temporal analysis",
+    "Admin role dominates bug reporting: 52.38% of bug reporters",
+    "Bug reporting appears to be tied to ONBOARDING phase (median 6 days)",
+    "Very few users become 'serial bug reporters' (only 1 user with 2 tickets)"
+  ],
+  "business_implications": [
+    "Bug reports cluster in the ONBOARDING/EARLY USAGE period (first 1-2 weeks)",
+    "This suggests bugs are discovered during initial product exploration",
+    "Most bugs are reported ONCE by users, not repeatedly",
+    "Admin users report more bugs - possibly due to broader product access/usage",
+    "Product should focus on IMPROVING ONBOARDING to reduce early-stage bug encounters"
+  ],
+  "data_quality_note": "The misalignment between bug ticket dates (Dec 2024-Jun 2025) and events dates (Mar 2025-Jun 2025) significantly limits our ability to analyze triggering events. Future analyses should ensure data coverage alignment."
+}
+

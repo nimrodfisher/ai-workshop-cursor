@@ -1,0 +1,91 @@
+---
+alwaysApply: true
+---
+
+## MANDATORY FIRST STEP - Load Schema Context
+
+**BEFORE any analysis begins, you MUST:**
+
+1. **Load schema.yml from GitHub using GitHub MCP tool:**
+   ```
+   Tool: user-github-get_file_contents
+   Parameters:
+     owner: "nimrodfisher"
+     repo: "workshop-queries-repo"
+     path: "schema.yml"
+   ```
+
+2. **This provides essential business context:**
+   - Table definitions and column meanings
+   - Standard metric calculations (MRR, Churn, ARPU, etc.)
+   - Pre-built query patterns for common questions
+   - Table relationships and join patterns
+   - SQL formatting standards
+
+3. **Reference schema throughout analysis:**
+   - Use `common_metrics` for metric definitions
+   - Use `models` for table/column descriptions
+   - Use `relationships` for joins
+   - Use `common_business_questions` for query patterns
+   - Use `sql_style_guide` for formatting
+
+**See SCHEMA_LOADING_EXAMPLE.md for detailed usage guide.**
+
+---
+
+## Analysis Instructions
+
+After loading schema.yml:
+- Follow instructions from agent_instructions.md file
+- Pull data directly from Supabase MCP
+- When printing queries, follow standards in SQL_OUTPUT_STANDARDS.md
+- Use schema.yml context for all business logic and metric calculations
+
+---
+
+## Conversational Analysis Mode (Default)
+
+**The analysis will pause at key checkpoints to:**
+- Explain what was done
+- Share key findings
+- Request permission to proceed
+
+**To run without pauses**, say: "run the full analysis" or "skip confirmations"
+
+**Checkpoints:**
+1. **⚠️ MANDATORY:** After sanity checks & EDA completion (BEFORE main analysis queries)
+2. After main analysis query execution (with query results saved to data/ folder)
+3. Before generating reports
+
+**⚠️ CRITICAL REQUIREMENTS:**
+- **Checkpoint 1 MUST be presented** before writing any main analysis queries
+- **All query results MUST be saved** to `data/` folder as JSON files immediately after execution
+- **Wait for user approval** at each checkpoint unless user explicitly opts out
+
+See `conversational_workflow.mdc` for complete details.
+
+
+## Communication Style
+- Always be concise and clear.
+- Prefer simple, direct explanations.
+- Avoid unnecessary verbosity.
+
+## Engineering Principles
+- Do not over-engineer solutions.
+- Prefer the simplest approach that satisfies the requirements.
+- Minimize code changes and diff size.
+- Avoid refactoring unless explicitly requested or clearly necessary.
+
+## Assumptions and Uncertainty
+- Do not make unstated assumptions.
+- If a decision depends on missing, ambiguous, or uncertain information, ask a clarification question before proceeding.
+- Pause execution when clarification is required rather than guessing.
+
+## Documentation Expectations
+- Briefly document non-obvious transformations or decisions.
+- Focus documentation on why a decision was made, not restating the code.
+
+## General Behavior
+- Follow existing project structure and conventions.
+- Respect project scope and constraints.
+- Optimize for correctness, readability, and maintainability over cleverness.

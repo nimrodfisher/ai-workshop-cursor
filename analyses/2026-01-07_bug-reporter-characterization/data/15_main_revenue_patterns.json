@@ -1,0 +1,23 @@
+[
+  {
+    "cohort": "Bug Ticket Accounts",
+    "account_count": 17,
+    "avg_subs_per_account": "2.71",
+    "avg_active_subs": "1.76",
+    "avg_canceled_subs": "0.71",
+    "avg_monthly_price": "126.40",
+    "avg_account_mrr": "210.59",
+    "avg_subscription_tenure_days": "325.97"
+  },
+  {
+    "cohort": "Other Accounts",
+    "account_count": 29,
+    "avg_subs_per_account": "2.55",
+    "avg_active_subs": "1.66",
+    "avg_canceled_subs": "0.69",
+    "avg_monthly_price": "95.87",
+    "avg_account_mrr": "164.21",
+    "avg_subscription_tenure_days": "301.04"
+  }
+]
+

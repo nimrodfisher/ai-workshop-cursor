@@ -1,0 +1,98 @@
+{
+  "query_name": "Account-Level Bug Reporting vs Non-Reporting Comparison",
+  "execution_timestamp": "2026-01-07T16:10:00Z",
+  "cohort_summary": {
+    "bug_reporting_accounts": {
+      "account_count": 20,
+      "pct_of_total_accounts": 40.0,
+      "avg_account_age_days": 347.99,
+      "avg_team_size": 4.40,
+      "median_team_size": 4.00,
+      "total_events": 7570,
+      "avg_events_per_account": 378.50,
+      "avg_events_per_user": 89.00,
+      "avg_event_diversity": 5.00,
+      "avg_tickets_per_account": 2.25,
+      "avg_bug_tickets_per_account": 1.10,
+      "max_events_per_account": 738,
+      "min_events_per_account": 86
+    },
+    "non_bug_reporting_accounts": {
+      "account_count": 30,
+      "pct_of_total_accounts": 60.0,
+      "avg_account_age_days": 411.11,
+      "avg_team_size": 3.73,
+      "median_team_size": 4.00,
+      "total_events": 6247,
+      "avg_events_per_account": 208.23,
+      "avg_events_per_user": 58.17,
+      "avg_event_diversity": 4.83,
+      "avg_tickets_per_account": 1.13,
+      "avg_bug_tickets_per_account": 0.00,
+      "max_events_per_account": 720,
+      "min_events_per_account": 0
+    }
+  },
+  "demographic_comparison": {
+    "industry_distribution": {
+      "bug_reporting_accounts": {
+        "MarTech": {"count": 5, "pct": 25.00},
+        "HealthTech": {"count": 4, "pct": 20.00},
+        "eCommerce": {"count": 4, "pct": 20.00},
+        "EdTech": {"count": 3, "pct": 15.00},
+        "SaaS": {"count": 2, "pct": 10.00},
+        "CyberSecurity": {"count": 2, "pct": 10.00}
+      },
+      "non_bug_reporting_accounts": {
+        "SaaS": {"count": 6, "pct": 20.00},
+        "eCommerce": {"count": 6, "pct": 20.00},
+        "FinTech": {"count": 6, "pct": 20.00},
+        "CyberSecurity": {"count": 4, "pct": 13.33},
+        "MarTech": {"count": 3, "pct": 10.00},
+        "HealthTech": {"count": 3, "pct": 10.00},
+        "EdTech": {"count": 2, "pct": 6.67}
+      }
+    },
+    "plan_distribution": {
+      "bug_reporting_accounts": {
+        "pro": {"count": 7, "pct": 35.00},
+        "enterprise": {"count": 7, "pct": 35.00},
+        "free": {"count": 6, "pct": 30.00}
+      },
+      "non_bug_reporting_accounts": {
+        "enterprise": {"count": 12, "pct": 40.00},
+        "free": {"count": 10, "pct": 33.33},
+        "pro": {"count": 8, "pct": 26.67}
+      }
+    }
+  },
+  "key_findings": [
+    "Bug-reporting accounts are HIGHLY MORE engaged: 378.50 avg events vs 208.23 for non-reporters (+81.8%)",
+    "Bug-reporting accounts have MUCH HIGHER engagement intensity: 89.00 events/user vs 58.17 (+53.0%)",
+    "Bug-reporting accounts have LARGER teams: 4.40 avg users vs 3.73 (+18.0%)",
+    "Bug-reporting accounts are NEWER: 347.99 days age vs 411.11 days (-15.4%)",
+    "Bug-reporting accounts have HIGHER event diversity: 5.00 vs 4.83 event types",
+    "Bug-reporting accounts have ALL event types (min 86 events) while non-reporters can have 0",
+    "MarTech is OVERREPRESENTED in bug reporters: 25.00% vs 10.00% in non-reporters",
+    "HealthTech is OVERREPRESENTED in bug reporters: 20.00% vs 10.00% in non-reporters",
+    "FinTech is UNDERREPRESENTED in bug reporters: 0% vs 20.00% in non-reporters",
+    "Plan distribution is fairly balanced, with slight Pro overrepresentation in bug reporters"
+  ],
+  "statistical_significance": {
+    "engagement_lift_per_account": "+81.8% more events per account for bug reporters",
+    "engagement_intensity_lift": "+53.0% more events per user for bug reporters",
+    "team_size_lift": "+18.0% larger teams for bug reporters",
+    "account_age_difference": "-15.4% newer accounts for bug reporters",
+    "martech_overrepresentation": "+150.0% more likely to be MarTech (25% vs 10%)",
+    "healthtech_overrepresentation": "+100.0% more likely to be HealthTech (20% vs 10%)",
+    "fintech_underrepresentation": "-100.0% (0% vs 20%)"
+  },
+  "business_implications": [
+    "Bug reporting is strongly correlated with HIGH ENGAGEMENT - active users find more issues",
+    "Larger teams (more users) lead to more bug reports - more eyes on the product",
+    "MarTech and HealthTech industries may have more complex use cases that surface bugs",
+    "FinTech accounts show NO bug reports despite 20% representation - potentially different usage patterns or higher tolerance",
+    "Newer accounts (newer customers) are more likely to report bugs - possibly in onboarding/learning phase"
+  ]
+}
+

@@ -1,0 +1,43 @@
+[
+  {
+    "event_type": "login",
+    "bug_reporter_users": 19,
+    "other_users": 148,
+    "pct_bug_reporters": "90.48",
+    "pct_other_users": "82.68",
+    "overrepresentation_ratio": "0.13"
+  },
+  {
+    "event_type": "file_upload",
+    "bug_reporter_users": 17,
+    "other_users": 143,
+    "pct_bug_reporters": "80.95",
+    "pct_other_users": "79.89",
+    "overrepresentation_ratio": "0.12"
+  },
+  {
+    "event_type": "report_view",
+    "bug_reporter_users": 16,
+    "other_users": 137,
+    "pct_bug_reporters": "76.19",
+    "pct_other_users": "76.54",
+    "overrepresentation_ratio": "0.12"
+  },
+  {
+    "event_type": "logout",
+    "bug_reporter_users": 16,
+    "other_users": 143,
+    "pct_bug_reporters": "76.19",
+    "pct_other_users": "79.89",
+    "overrepresentation_ratio": "0.11"
+  },
+  {
+    "event_type": "api_call",
+    "bug_reporter_users": 13,
+    "other_users": 131,
+    "pct_bug_reporters": "61.90",
+    "pct_other_users": "73.18",
+    "overrepresentation_ratio": "0.10"
+  }
+]
+

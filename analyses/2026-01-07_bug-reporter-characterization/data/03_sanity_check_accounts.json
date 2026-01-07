@@ -1,0 +1,63 @@
+[
+  {
+    "check_name": "Date Range",
+    "status": "INFO",
+    "issue_count": 364,
+    "details": "Accounts created from 2024-06-06 to 2025-06-06"
+  },
+  {
+    "check_name": "Duplicate Names",
+    "status": "INFO",
+    "issue_count": 2,
+    "details": "Number of duplicate account names"
+  },
+  {
+    "check_name": "Industry Distribution",
+    "status": "INFO",
+    "issue_count": 7,
+    "details": "Distinct industries: CyberSecurity, eCommerce, EdTech, FinTech, HealthTech, MarTech, SaaS"
+  },
+  {
+    "check_name": "Null created_at",
+    "status": "PASS",
+    "issue_count": 0,
+    "details": "Accounts without creation timestamp"
+  },
+  {
+    "check_name": "Null IDs",
+    "status": "PASS",
+    "issue_count": 0,
+    "details": "Primary key (id) should never be null"
+  },
+  {
+    "check_name": "Null Industry",
+    "status": "PASS",
+    "issue_count": 0,
+    "details": "Accounts without industry classification"
+  },
+  {
+    "check_name": "Null Names",
+    "status": "PASS",
+    "issue_count": 0,
+    "details": "Accounts without a name"
+  },
+  {
+    "check_name": "Null Plan",
+    "status": "PASS",
+    "issue_count": 0,
+    "details": "Accounts without a plan tier assigned"
+  },
+  {
+    "check_name": "Plan Distribution",
+    "status": "INFO",
+    "issue_count": 3,
+    "details": "Distinct plan tiers: enterprise, free, pro"
+  },
+  {
+    "check_name": "Total Records",
+    "status": "PASS",
+    "issue_count": 50,
+    "details": "Total accounts in table"
+  }
+]
+

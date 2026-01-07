@@ -137,6 +137,29 @@ framework.add_step(
 
 **CHECKPOINT 3: Before Generating Deliverables**
 
+#### Pre-Report Generation Validation
+
+**CRITICAL: Before generating ANY reports, verify the following checklist:**
+
+- [ ] `deliverables/` folder exists in analysis directory (create if missing)
+- [ ] All query results are saved in `data/` folder as JSON files
+- [ ] `conclusions/conclusions.md` is complete with findings and recommendations
+- [ ] `analysis_flow.md` exists and documents the analysis workflow
+- [ ] All queries in `queries/` folder are properly documented with headers
+
+**⚠️ If ANY checklist item fails, STOP and complete it before proceeding with report generation.**
+
+**Folder Structure Check:**
+```
+analyses/{YYYY-MM-DD}_{analysis_slug}/
+├── deliverables/          ← Must exist before generating reports
+├── data/                  ← Must contain query results (*.json)
+├── queries/               ← Must contain documented SQL files
+├── conclusions/
+│   └── conclusions.md     ← Must be complete
+└── analysis_flow.md       ← Must exist
+```
+
 ---
 
 ### STEP 6: Phase 5 - Report Generation (MANDATORY FINAL STEP)
@@ -149,16 +172,24 @@ framework.add_step(
 - ✅ [.cursor/rules/interactive_dashboard.mdc](.cursor/rules/interactive_dashboard.mdc) (Dashboard Interactivity)
 
 **Key Requirements:**
-1.  **Context-Aware Logic**: For EVERY analysis, create a custom Python generation script (e.g., `generate_branded_reports.py`). Never use generic templates.
-2.  **Branding Consistency**:
+1.  **Output Location (MANDATORY)**: ALL reports MUST be saved to the `deliverables/` folder:
+    - Path: `analyses/{YYYY-MM-DD}_{analysis_slug}/deliverables/`
+    - Static HTML: `deliverables/report.html`
+    - Interactive Dashboard: `deliverables/report_interactive.html`
+    - PDF Summary: `deliverables/report_summary.pdf`
+    - **⚠️ Create the deliverables/ folder if it doesn't exist**
+    - **❌ NEVER** use custom filenames like `bug_reporter_analysis_report.html`
+    - **✅ ALWAYS** use standardized names: `report.html`, `report_interactive.html`, `report_summary.pdf`
+2.  **Context-Aware Logic**: For EVERY analysis, create a custom Python generation script (e.g., `generate_branded_reports.py`). Never use generic templates.
+3.  **Branding Consistency**:
     - **Author**: Nimrod Fisher | AI Analytics Hub
     - **Website**: ai-analytics-hub.com
     - **Profile Image**: Embed `.cursor/assets/photo.jpg` as base64.
-3.  **PDF Formatting (MANDATORY)**:
+4.  **PDF Formatting (MANDATORY)**:
     - Use `reportlab`.
     - ALWAYS wrap table cell content in `Paragraph` flowables to handle line breaks and bold tags.
     - Use a helper function like `p_wrap(text, style)` for consistency.
-4.  **HTML Formatting**:
+5.  **HTML Formatting**:
     - Use Bootstrap 5, DataTables.net, and ECharts/Plotly via CDN.
     - Follow the mandatory section sequence: Header → Executive Summary → Methodology → Findings → Recommendations → Footer.
 

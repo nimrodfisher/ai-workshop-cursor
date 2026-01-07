@@ -1,0 +1,78 @@
+{
+  "eda_timestamp": "2026-01-07T16:00:00Z",
+  "user_demographics": {
+    "role_distribution": [
+      {"role": "admin", "user_count": 72, "pct_of_total": 36.0, "orgs_with_this_role": 39},
+      {"role": "viewer", "user_count": 67, "pct_of_total": 33.5, "orgs_with_this_role": 36},
+      {"role": "analyst", "user_count": 61, "pct_of_total": 30.5, "orgs_with_this_role": 36}
+    ],
+    "ticket_reporting_coverage": {
+      "total_users": 200,
+      "users_who_opened_tickets": 65,
+      "users_who_opened_bug_tickets": 21,
+      "pct_users_with_tickets": 32.5,
+      "pct_users_with_bug_tickets": 10.5
+    },
+    "activity_level_distribution": [
+      {"activity_level": "1-5 - Low Activity", "user_count": 53, "pct_of_users": 26.5, "avg_events": 3.58},
+      {"activity_level": "6-15 - Medium Activity", "user_count": 121, "pct_of_users": 60.5, "avg_events": 9.28},
+      {"activity_level": "16+ - High Activity", "user_count": 26, "pct_of_users": 13.0, "avg_events": 24.88}
+    ]
+  },
+  "account_demographics": {
+    "plan_distribution": [
+      {"plan": "enterprise", "account_count": 19, "pct_of_total": 38.0, "avg_users_per_account": 4.79},
+      {"plan": "free", "account_count": 16, "pct_of_total": 32.0, "avg_users_per_account": 3.13},
+      {"plan": "pro", "account_count": 15, "pct_of_total": 30.0, "avg_users_per_account": 3.93}
+    ],
+    "industry_distribution": [
+      {"industry": "eCommerce", "account_count": 10, "pct_of_total": 20.0},
+      {"industry": "SaaS", "account_count": 8, "pct_of_total": 16.0},
+      {"industry": "MarTech", "account_count": 8, "pct_of_total": 16.0},
+      {"industry": "HealthTech", "account_count": 7, "pct_of_total": 14.0},
+      {"industry": "CyberSecurity", "account_count": 6, "pct_of_total": 12.0},
+      {"industry": "FinTech", "account_count": 6, "pct_of_total": 12.0},
+      {"industry": "EdTech", "account_count": 5, "pct_of_total": 10.0}
+    ],
+    "ticket_reporting_coverage": {
+      "total_accounts": 50,
+      "accounts_with_any_tickets": 41,
+      "accounts_with_bug_tickets": 20,
+      "pct_accounts_with_tickets": 82.0,
+      "pct_accounts_with_bug_tickets": 40.0
+    }
+  },
+  "behavioral_patterns": {
+    "event_type_distribution": [
+      {"event_type": "file_upload", "event_count": 412, "pct_of_total": 21.02, "unique_users": 160, "unique_orgs": 49},
+      {"event_type": "logout", "event_count": 407, "pct_of_total": 20.77, "unique_users": 159, "unique_orgs": 49},
+      {"event_type": "login", "event_count": 392, "pct_of_total": 20.0, "unique_users": 167, "unique_orgs": 49},
+      {"event_type": "report_view", "event_count": 388, "pct_of_total": 19.8, "unique_users": 153, "unique_orgs": 49},
+      {"event_type": "api_call", "event_count": 361, "pct_of_total": 18.42, "unique_users": 144, "unique_orgs": 49}
+    ],
+    "bug_ticket_timing": [
+      {"month": "2024-12-01", "bug_tickets": 6, "unique_orgs_reporting": 6, "unique_users_reporting": 6},
+      {"month": "2025-01-01", "bug_tickets": 3, "unique_orgs_reporting": 3, "unique_users_reporting": 3},
+      {"month": "2025-02-01", "bug_tickets": 3, "unique_orgs_reporting": 3, "unique_users_reporting": 3},
+      {"month": "2025-04-01", "bug_tickets": 3, "unique_orgs_reporting": 3, "unique_users_reporting": 3},
+      {"month": "2025-05-01", "bug_tickets": 6, "unique_orgs_reporting": 6, "unique_users_reporting": 6},
+      {"month": "2025-06-01", "bug_tickets": 1, "unique_orgs_reporting": 1, "unique_users_reporting": 1}
+    ],
+    "bug_ticket_status": [
+      {"status": "open", "ticket_count": 12, "pct_of_total": 54.55, "avg_days_open": 288.61},
+      {"status": "closed", "ticket_count": 10, "pct_of_total": 45.45, "avg_days_open": 7.20}
+    ]
+  },
+  "key_insights": [
+    "Only 10.5% of users (21 out of 200) have opened bug tickets",
+    "40% of accounts (20 out of 50) have had bug tickets opened",
+    "Admin role is most common (36%), followed by viewer (33.5%) and analyst (30.5%)",
+    "Enterprise accounts have the most users (avg 4.79), followed by Pro (3.93) and Free (3.13)",
+    "Event types are evenly distributed: file_upload, logout, login, report_view, api_call",
+    "Most users (60.5%) have medium activity (6-15 events)",
+    "Bug tickets spike in Dec 2024 and May 2025 (6 tickets each month)",
+    "54.55% of bug tickets are still open, with avg open time of 288.61 days",
+    "Closed bug tickets have avg resolution time of 7.20 days"
+  ]
+}
+

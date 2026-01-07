@@ -1,0 +1,120 @@
+---
+alwaysApply: true
+---
+
+# SQL Query Standards
+
+## Purpose
+This rule ensures consistent SQL formatting, comprehensive documentation via headers, and mandatory persistence of query results for reproducibility and analysis.
+
+## Query Documentation Standards
+
+### SQL File Header (Required)
+
+Every SQL file must begin with this header block:
+
+```sql
+/*
+================================================================================
+QUERY: {Descriptive Query Name}
+================================================================================
+Business Question: {The specific question this query answers}
+Author: {Name}
+Created: {YYYY-MM-DD}
+Last Modified: {YYYY-MM-DD}
+-----
+DESCRIPTION:
+  {2-3 sentences explaining what this query does and why}
+
+DEPENDENCIES:
+  - {schema.table_1}: {brief description of what we need from it}
+  - {schema.table_2}: {brief description}
+
+OUTPUT:
+  - {column_1}: {description and data type}
+  - {column_2}: {description and data type}
+
+NOTES:
+  - {Any assumptions, caveats, or business logic considerations}
+  - {Known limitations or edge cases}
+================================================================================
+*/
+```
+
+### SQL Formatting Rules
+
+1. **Keywords**: UPPERCASE (SELECT, FROM, WHERE, JOIN, etc.)
+2. **Identifiers**: lowercase with underscores (user_id, created_at)
+3. **Indentation**: 2 or 4 spaces (be consistent within file)
+4. **Line length**: Max 100 characters, break long lines logically
+
+### Inline Comments
+
+```sql
+-- Section: Define the analysis cohort
+WITH cohort AS (
+    SELECT 
+        user_id,
+        MIN(event_date) AS first_event_date  -- First activity date per user
+    FROM events
+    WHERE event_type = 'signup'              -- Only signup events
+      AND event_date >= '2024-01-01'         -- Analysis period start
+    GROUP BY 1
+),
+
+-- Section: Calculate user metrics
+user_metrics AS (
+    SELECT
+        c.user_id,
+        c.first_event_date,
+        COUNT(DISTINCT e.session_id) AS total_sessions,  -- Engagement proxy
+        SUM(e.revenue) AS total_revenue                  -- Lifetime value
+    FROM cohort c
+    LEFT JOIN events e 
+        ON c.user_id = e.user_id
+        AND e.event_date >= c.first_event_date
+    GROUP BY 1, 2
+)
+
+-- Final output with business-friendly column names
+SELECT
+    user_id,
+    first_event_date AS signup_date,
+    total_sessions,
+    total_revenue,
+    -- Derived metric: revenue per session
+    ROUND(total_revenue / NULLIF(total_sessions, 0), 2) AS revenue_per_session
+FROM user_metrics
+ORDER BY total_revenue DESC
+```
+
+### Query Versioning
+
+When modifying queries significantly:
+- Keep the original with suffix `_v1`
+- Create new version with incremented suffix `_v2`
+- Document changes in the header's NOTES section
+
+## Quick Reference: Comment Tags
+
+Use these tags in comments for easy searching:
+
+- `-- TODO:` Items that need to be addressed
+- `-- FIXME:` Known issues that need fixing
+- `-- HACK:` Workarounds that should be improved
+- `-- NOTE:` Important information for future readers
+- `-- QUESTION:` Unresolved questions about the logic
+- `-- BIZ_LOGIC:` Business rules embedded in code
+
+## Automation Rules for Cursor
+
+When the user writes SQL:
+
+1. **Always add** the standard header block
+2. **Include inline comments** for complex logic
+3. **Use CTEs** for readability over nested subqueries
+4. **Name columns** with business-friendly aliases in final SELECT
+5. **⚠️ MANDATORY: Save query results** to the `data/` folder in JSON format immediately after execution
+   - Filename format: `NN_query-name.json` (matches the SQL query filename)
+   - Save ALL query results, not just final outputs
+   - This enables data review, reproducibility, and report generation

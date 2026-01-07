@@ -1,0 +1,27 @@
+[
+  {
+    "account_group": "Multi-Bug Accounts",
+    "account_count": 2,
+    "avg_users": "3.50",
+    "avg_events": "42.00",
+    "avg_non_bug_tickets": "0.50",
+    "plans_represented": "enterprise, pro"
+  },
+  {
+    "account_group": "Single-Bug Accounts",
+    "account_count": 18,
+    "avg_users": "4.50",
+    "avg_events": "39.61",
+    "avg_non_bug_tickets": "1.22",
+    "plans_represented": "enterprise, free, pro"
+  },
+  {
+    "account_group": "No Bug Tickets",
+    "account_count": 30,
+    "avg_users": "3.73",
+    "avg_events": "38.77",
+    "avg_non_bug_tickets": "1.13",
+    "plans_represented": "enterprise, free, pro"
+  }
+]
+

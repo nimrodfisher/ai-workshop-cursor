@@ -1,0 +1,87 @@
+[
+  {
+    "check_name": "Bug Tickets Count",
+    "status": "PASS",
+    "issue_count": 22,
+    "details": "Support tickets with category = bug"
+  },
+  {
+    "check_name": "Category Distribution",
+    "status": "INFO",
+    "issue_count": 4,
+    "details": "Distinct category values: billing, bug, feature_request, usage_question"
+  },
+  {
+    "check_name": "Date Range",
+    "status": "INFO",
+    "issue_count": 176,
+    "details": "Tickets span from 2024-12-12 to 2025-06-06"
+  },
+  {
+    "check_name": "Invalid timestamps",
+    "status": "PASS",
+    "issue_count": 0,
+    "details": "Tickets closed before they were opened"
+  },
+  {
+    "check_name": "Null category",
+    "status": "PASS",
+    "issue_count": 0,
+    "details": "Tickets without a category assigned"
+  },
+  {
+    "check_name": "Null IDs",
+    "status": "PASS",
+    "issue_count": 0,
+    "details": "Primary key (id) should never be null"
+  },
+  {
+    "check_name": "Null opened_at",
+    "status": "PASS",
+    "issue_count": 0,
+    "details": "Tickets without an opening timestamp"
+  },
+  {
+    "check_name": "Null opened_by",
+    "status": "INFO",
+    "issue_count": 0,
+    "details": "Tickets with no user attribution (system-generated)"
+  },
+  {
+    "check_name": "Null org_id",
+    "status": "PASS",
+    "issue_count": 0,
+    "details": "Foreign key org_id should not be null"
+  },
+  {
+    "check_name": "Null status",
+    "status": "PASS",
+    "issue_count": 0,
+    "details": "Tickets without a status assigned"
+  },
+  {
+    "check_name": "Orphaned opened_by",
+    "status": "PASS",
+    "issue_count": 0,
+    "details": "Support tickets with invalid opened_by user references"
+  },
+  {
+    "check_name": "Orphaned org_id",
+    "status": "PASS",
+    "issue_count": 0,
+    "details": "Support tickets with invalid org_id references"
+  },
+  {
+    "check_name": "Status Distribution",
+    "status": "INFO",
+    "issue_count": 2,
+    "details": "Distinct status values: closed, open"
+  },
+  {
+    "check_name": "Total Records",
+    "status": "PASS",
+    "issue_count": 79,
+    "details": "Total support tickets in table"
+  }
+]
+
