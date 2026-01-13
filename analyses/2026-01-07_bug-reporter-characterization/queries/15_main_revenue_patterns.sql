@@ -73,3 +73,6 @@ LEFT JOIN bug_ticket_accounts bta ON sm.org_id = bta.org_id
 GROUP BY cohort
 ORDER BY cohort;
 
+
+
+

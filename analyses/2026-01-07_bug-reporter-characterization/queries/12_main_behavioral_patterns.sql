@@ -65,3 +65,6 @@ LEFT JOIN bug_ticket_users btu ON ua.user_id = btu.user_id
 GROUP BY cohort
 ORDER BY cohort;
 
+
+
+

@@ -190,3 +190,6 @@ LEFT JOIN plan_breakdown pb ON ca.cohort = pb.cohort
 LEFT JOIN event_type_breakdown etb ON ca.cohort = etb.cohort
 ORDER BY ca.cohort DESC;
 
+
+
+

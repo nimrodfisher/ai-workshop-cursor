@@ -121,3 +121,6 @@ LEFT JOIN events_after_bug eab ON ubc.user_id = eab.user_id
 LEFT JOIN last_event_details led ON ubc.user_id = led.user_id
 ORDER BY ubc.first_bug_date;
 
+
+
+

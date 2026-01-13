@@ -45,3 +45,6 @@ LEFT JOIN (
 GROUP BY a.industry
 ORDER BY account_count DESC;
 
+
+
+

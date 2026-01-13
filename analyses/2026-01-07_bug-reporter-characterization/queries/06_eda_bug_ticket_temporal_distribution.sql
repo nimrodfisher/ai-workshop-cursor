@@ -40,3 +40,6 @@ WHERE category = 'bug'
 GROUP BY DATE_TRUNC('month', opened_at)
 ORDER BY month DESC;
 
+
+
+

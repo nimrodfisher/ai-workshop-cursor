@@ -66,3 +66,6 @@ FROM user_cohorts
 GROUP BY cohort, role, plan, industry
 ORDER BY cohort, user_count DESC;
 
+
+
+

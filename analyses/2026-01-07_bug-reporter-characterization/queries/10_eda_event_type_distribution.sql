@@ -40,3 +40,6 @@ WHERE event_type IS NOT NULL
 GROUP BY event_type
 ORDER BY total_events DESC;
 
+
+
+
